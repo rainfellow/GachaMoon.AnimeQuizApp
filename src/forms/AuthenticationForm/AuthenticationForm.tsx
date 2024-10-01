@@ -16,9 +16,17 @@ import { upperFirst, useToggle } from '@mantine/hooks';
 import { DiscordButton } from '@/components/DiscordButton';
 import { GoogleButton } from '@/components/GoogleButton';
 import classes from './AuthernticationForm.module.css';
+import { useAxios } from '@/hooks/use-axios';
+import { useAuth } from '@/hooks/use-auth';
+import { useNavigate } from 'react-router-dom';
+import { AxiosResponse } from 'axios';
+import { LoginData } from '@/models/User';
 
 export function AuthenticationForm(props: PaperProps) {
   const [type, toggle] = useToggle(['login', 'register']);
+  const axios = useAxios();
+  const { login } = useAuth();
+  const navigate = useNavigate();
   const redirectToDiscord = () => 
   {
       window.location.href = `https://discord.com/oauth2/authorize?client_id=1222238485134442556&response_type=code&redirect_uri=https%3A%2F%2Fgachamoon.xyz%2Fauth%2Fdiscord&scope=identify`; 
@@ -37,6 +45,20 @@ export function AuthenticationForm(props: PaperProps) {
         val.length <= 6 ? 'Password should include at least 6 characters' : null,
     },
   });
+
+  const tryLogin = () => {
+    let data = { email: form.values.email, password: form.values.password }
+    axios.post('/Login', { ...data })
+      .then((response: AxiosResponse<LoginData>) => {
+        const { loginData } = response.data;
+        console.log("logging in: %i", loginData.accountId);
+        login(loginData);
+  }).catch((e) => {
+      console.log(e);
+    }).finally(() => {
+      navigate('/');
+  });
+  }
 
   return (
     <div className={classes.wrapper}>
@@ -74,7 +96,7 @@ export function AuthenticationForm(props: PaperProps) {
               radius="md"
             />
           </Stack>      
-            <Button justify="space-between" mt="xl" type="submit" radius="xl">
+            <Button justify="space-between" mt="xl" type="submit" radius="xl" onClick={tryLogin}>
               Login
             </Button>
         </form>
