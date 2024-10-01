@@ -1,5 +1,5 @@
 import { ReactElement, useContext, useEffect, useState } from 'react';
-import { AspectRatio, Autocomplete, Box, Button, Container, Flex, Image, Loader, LoadingOverlay, Paper, Slider, Text, Stack } from '@mantine/core';
+import { AspectRatio, Autocomplete, Box, Button, Container, Flex, Image, Loader, LoadingOverlay, Paper, Slider, Text, Stack, rem } from '@mantine/core';
 import { AnimeContext } from '@/context/anime-context';
 import { GameState, QuestionResult } from '@/models/GameConfiguration';
 import { SoloGameContext } from '../../context/solo-game-context';
@@ -126,7 +126,7 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
             <Slider value={questionTimeoutValue} onChangeEnd={handleTimeRangeChange} label={(value) => `${value} sec`} min={15} max={35} marks={[{ value: 15 }, { value: 25 }, { value: 35 }]} />
             <Text size="sm">Number of questions</Text>
             <Slider value={numberOfQuestionsValue} onChangeEnd={handleQuestionNumberRangeChange} label={(value) => `${value}`} min={5} max={30} marks={[{ value: 5 }, { value: 20 }, { value: 30 }]} />
-            <Button color="primary" size="lg" onClick={startSoloGame}>Start Game</Button>
+            <Button size="md" onClick={startSoloGame}>Start Game</Button>
           </Container>
         </Flex>
       </Paper>
@@ -164,19 +164,20 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
         <Container fluid className={classes.wrapper}>
           <div>Correct answers: {correctAnswers}</div>
           {StateElement()}
-          <AspectRatio ratio={1920 / 1080} maw={720} mx="auto">
+          <AspectRatio ratio={16 / 9} maw={720} mx="auto">
             <ImageLoader url={currentQuestion.question}/>
           </AspectRatio>
-          <div className={classes.answerBox}>
-            <Autocomplete
+          <div>
+            <Autocomplete 
+              className={classes.answerBox}
               placeholder=""
-              limit={20}
+              limit={25}
               data={animeNames}
               value={currentAnswer.customChoice}
               onChange={handleAnswerChange}
             />
           </div>
-          <Button color="primary" size="lg" onClick={handleConfirmAnswer}>
+          <Button size="md" onClick={handleConfirmAnswer}>
             Send Answer
           </Button>
         </Container>
@@ -184,8 +185,16 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
     );
   }
 
+  function loadingScreen() {
+    return(
+      <div className={classes.wrapper}>
+        <Loader />
+      </div>
+    )
+  }
+
   return (
     <>
-    {(gameState != GameState.None && animeLoaded) ? ((isInLobbyScreen()) ? settingsScreen() : playingScreen()) : <>Creating lobby...</>}</>
+    {(gameState != GameState.None && animeLoaded) ? ((isInLobbyScreen()) ? settingsScreen() : playingScreen()) : loadingScreen()}</>
   );
 }
