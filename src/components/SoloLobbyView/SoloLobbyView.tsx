@@ -1,11 +1,11 @@
 import { ReactElement, useContext, useEffect, useState } from 'react';
 import { AspectRatio, Autocomplete, Box, Button, Container, Flex, Image, Loader, LoadingOverlay, Paper, Slider, Text } from '@mantine/core';
 import { AnimeContext } from '@/context/anime-context';
-import { GameState } from '@/models/GameConfiguration';
+import { GameState, QuestionResult } from '@/models/GameConfiguration';
 import { SoloGameContext } from '../../context/solo-game-context';
 import { useSoloGame } from '../../hooks/use-solo-game';
+import { useAnimeBase } from '@/hooks/use-anime-base';
 import classes from './SoloLobbyView.module.css';
-
 
 export const SoloLobbyView: React.FC = (): ReactElement => {
 
@@ -15,7 +15,9 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
   
   const { startSoloLobby, startSoloGame, answerQuestion } = useSoloGame();
 
-  const { getAnimeIdFromName, animeLoaded, animeNames } = useContext(AnimeContext);
+  const { animeLoaded, animeNames } = useContext(AnimeContext);
+
+  const { getAnimeIdFromName , getAnimeNameFromId } = useAnimeBase();
 
   const [questionTimer, setQuestionTimer] = useState(questionTimeoutValue);
   const [isTimerStarted, setIsTimerStarted] = useState(false);
@@ -74,13 +76,25 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
       }
   }, [gameState])
 
+  function QuestionTransitionResultComponent(lastAnswerData: QuestionResult) {
+    return (
+      <div>
+        <Stack>
+        <Text size="sm">Switching to next question...</Text>
+        <Text size="sm">Correct answer was: {getAnimeNameFromId(lastAnswerData.correctAnswerId)}</Text>
+        <Text size="sm">Your answer was: {getAnimeNameFromId(lastAnswerData.detectedAnswerId)}</Text>
+        </Stack>
+      </div>
+    )
+  }
+
   function StateElement() {
     return (
       <div>
         { gameState == GameState.QuestionReceived && <Text size="sm">Time left: {questionTimer}</Text>}
         { gameState == GameState.QuestionAnswered && <Text size="sm">Sending answer...</Text>}
         { gameState == GameState.AnswerReceived && <Text size="sm">Answer received!</Text>}
-        { gameState == GameState.QuestionTransition && <Text size="sm">Switching to next question... Last Answer: {lastAnswerData.correctAnswerId} Your Answer: {lastAnswerData.detectedAnswerId}</Text>}
+        { gameState == GameState.QuestionTransition && QuestionTransitionResultComponent(lastAnswerData)}
       </div>
     )
   }
@@ -136,8 +150,6 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
   };
 
   function playingScreen() {
-    console.log(animeNames?.length);
-
     return (
       <Paper>
         <Container fluid className={classes.wrapper}>

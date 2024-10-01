@@ -8,8 +8,7 @@ export interface IAnimeContext {
     animes: AnimeData[] | undefined
     animeLoaded: boolean;
     animeNames: string[] | undefined
-    getAllAnimeNames: () => string[] | undefined
-    getAnimeIdFromName: (name: string) => number | undefined
+    animesFlattened: AnimeFlattenedData[] | undefined
     loadAnimes: () => Promise<void> | undefined
 }
 
@@ -17,8 +16,7 @@ export const AnimeContext = createContext<IAnimeContext>({
     animes: undefined,
     animeLoaded: false,
     animeNames: undefined,
-    getAllAnimeNames: () => { return undefined },
-    getAnimeIdFromName: (name: string) => { return undefined },
+    animesFlattened: undefined,
     loadAnimes: () => { return undefined }
 });
 
@@ -40,20 +38,15 @@ export const AnimeContextProvider: React.FC<AnimeContextProviderProps> = ({
         animes,
         animeLoaded,
         animeNames,
-        getAllAnimeNames: useCallback(() => {
-            return animeNames;
-        }, []),
-        getAnimeIdFromName: useCallback((name: string) => {
-            var result = animesFlattened?.find((value) => value.alias === name);
-            return result?.animeId;
-        }, []),
+        animesFlattened,
         loadAnimes: useCallback(async () => {
             axios.get("/Quiz/animes/all").then((res: AxiosResponse<AnimeResponse>) => {
                 let animesData: AnimeData[] = res.data.animeData;
-                console.log(animesData.length)
                 setAnimes(animesData);
-                setAnimesFlattened(animesData.flatMap((anime) => anime.aliases.map((animeAlias) => ({ animeId: animeAlias.animeId, MALId: anime.MALId, alias: animeAlias.alias, language: animeAlias.language }))));
-                setAnimeNames(animesData.flatMap((anime) => anime.aliases.map((animeAlias) => (animeAlias.alias))));
+                let flattenedAnimes = animesData.flatMap((anime) => anime.aliases.map((animeAlias) => ({ animeId: anime.animeId, MALId: anime.MALId, alias: animeAlias.alias, language: animeAlias.language })));
+                setAnimesFlattened(flattenedAnimes);
+                let animeNames = flattenedAnimes.map((anime) => (anime.alias));
+                setAnimeNames(animeNames);
             }).catch((e) => { console.log("error during anime list fetching: " + e)}).finally(() => setAnimeLoaded(true));
         }, []),
     };
