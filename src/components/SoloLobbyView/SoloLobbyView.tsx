@@ -6,6 +6,7 @@ import { AspectRatio, Button, Container, Slider, Text, Image, Paper, Autocomplet
 import classes from './SoloLobbyView.module.css'
 import { AnimeContext } from '@/context/anime-context';
 import { GameState } from '@/models/GameConfiguration';
+import { useAnimeBase } from '@/hooks/use-anime-base';
 
 export const SoloLobbyView: React.FC = (): ReactElement => {
 
@@ -15,7 +16,9 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
   
   const { startSoloLobby, startSoloGame, answerQuestion } = useSoloGame();
 
-  const { getAnimeIdFromName, animeLoaded, animeNames } = useContext(AnimeContext);
+  const { animeLoaded, animeNames } = useContext(AnimeContext);
+
+  const { getAnimeIdFromName } = useAnimeBase();
 
   const [questionTimer, setQuestionTimer] = useState(questionTimeoutValue);
   const [isTimerStarted, setIsTimerStarted] = useState(false);
@@ -36,15 +39,20 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
     setCurrentAnswer({ choice: undefined, customChoice: newAnswer });
   
   };
-  const handleConfirmAnswer = () => {
 
-    if (currentAnswer.customChoice != undefined)
+  const handleConfirmAnswer = () => {
+    let finalChoice: undefined | number;
+    if (currentAnswer.customChoice != undefined && currentAnswer.choice == undefined)
     {
       let answerAnimeId = getAnimeIdFromName(currentAnswer.customChoice);
-      currentAnswer.choice = answerAnimeId;
+      finalChoice = answerAnimeId;
+    }
+    else
+    {
+      console.log("undefined custom answer!")
     }
     
-    answerQuestion(currentAnswer);
+    answerQuestion({ customChoice: currentAnswer.customChoice, choice: finalChoice });
   
   };
 
@@ -69,7 +77,11 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
           } else return time - 1;
         });
       }, 1000);
-      }
+    }
+    else if (gameState == GameState.QuestionTransition)
+    {
+      setCurrentAnswer({ choice: undefined, customChoice: "" });
+    }
   }, [gameState])
 
   function StateElement() {
