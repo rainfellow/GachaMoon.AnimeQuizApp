@@ -104,6 +104,7 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
         { gameState == GameState.QuestionAnswered && <Text size="sm">Sending answer...</Text>}
         { gameState == GameState.AnswerReceived && <Text size="sm">Answer received!</Text>}
         { gameState == GameState.QuestionTransition && QuestionTransitionResultComponent(lastAnswerData)}
+        { gameState == GameState.Finished && <Text size="sm">Game Complete</Text>}
       </div>
     )
   }

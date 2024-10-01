@@ -51,15 +51,16 @@ export const useSoloGame = (): ISoloGame => {
     }
     const handleGameStarted = (gameConfiguration: GameConfiguration) => {
         setGameConfiguration(gameConfiguration)
+        setCorrectAnswers(0);
         setGameState(GameState.Starting)
     }
     const handleGameCompleted = (event: GameCompletedEvent) => {
-    console.log("game completed event triggered")
-    setGameState(GameState.Finished)
-    setIsReady(true);
-    //setCurrentQuestion(defaultQuestion);
-    //setCurrentAnswer(defaultAnswer);
-    setCorrectAnswers(0);
+        console.log("game completed event triggered")
+        setGameState(GameState.Finished)
+        setIsReady(true);
+        //setCurrentQuestion(defaultQuestion);
+        //setCurrentAnswer(defaultAnswer);
+        setCorrectAnswers(event.correct);
     }
     events(handleMessageReceived , handleWaitUntilReady, handleAskQuestion, handleConfirmAnswerReceived, handleQuestionResultReceived, handleQuestionTransitionMessage, handleGameStarted, handleGameCompleted );
 
