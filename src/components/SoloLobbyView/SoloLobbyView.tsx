@@ -5,12 +5,8 @@ import { useSoloGame } from '../../hooks/use-solo-game';
 import { AspectRatio, Button, Container, Slider, Text, Image, Paper, Autocomplete, Stack } from '@mantine/core';
 import classes from './SoloLobbyView.module.css'
 import { AnimeContext } from '@/context/anime-context';
-<<<<<<< Updated upstream
-import { GameState } from '@/models/GameConfiguration';
-=======
 import { GameState, QuestionResult } from '@/models/GameConfiguration';
 import { useAnimeBase } from '@/hooks/use-anime-base';
->>>>>>> Stashed changes
 
 export const SoloLobbyView: React.FC = (): ReactElement => {
 
@@ -20,13 +16,9 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
   
   const { startSoloLobby, startSoloGame, answerQuestion } = useSoloGame();
 
-<<<<<<< Updated upstream
-  const { getAnimeIdFromName, animeLoaded, animeNames } = useContext(AnimeContext);
-=======
   const { animeLoaded, animeNames } = useContext(AnimeContext);
 
   const { getAnimeIdFromName , getAnimeNameFromId } = useAnimeBase();
->>>>>>> Stashed changes
 
   const [questionTimer, setQuestionTimer] = useState(questionTimeoutValue);
   const [isTimerStarted, setIsTimerStarted] = useState(false);
