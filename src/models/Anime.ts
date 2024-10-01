@@ -1,6 +1,7 @@
 export interface AnimeData {
     animeId: number,
     MALId: number,
+    animeName: string,
     aliases: AnimeAliasData[]
 }
 

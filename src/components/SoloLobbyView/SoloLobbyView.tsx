@@ -2,11 +2,15 @@ import { ReactElement, useState, useEffect, useContext } from 'react'
 
 import { SoloGameContext } from '../../context/solo-game-context';
 import { useSoloGame } from '../../hooks/use-solo-game';
-import { AspectRatio, Button, Container, Slider, Text, Image, Paper, Autocomplete } from '@mantine/core';
+import { AspectRatio, Button, Container, Slider, Text, Image, Paper, Autocomplete, Stack } from '@mantine/core';
 import classes from './SoloLobbyView.module.css'
 import { AnimeContext } from '@/context/anime-context';
+<<<<<<< Updated upstream
 import { GameState } from '@/models/GameConfiguration';
+=======
+import { GameState, QuestionResult } from '@/models/GameConfiguration';
 import { useAnimeBase } from '@/hooks/use-anime-base';
+>>>>>>> Stashed changes
 
 export const SoloLobbyView: React.FC = (): ReactElement => {
 
@@ -16,9 +20,13 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
   
   const { startSoloLobby, startSoloGame, answerQuestion } = useSoloGame();
 
+<<<<<<< Updated upstream
+  const { getAnimeIdFromName, animeLoaded, animeNames } = useContext(AnimeContext);
+=======
   const { animeLoaded, animeNames } = useContext(AnimeContext);
 
-  const { getAnimeIdFromName } = useAnimeBase();
+  const { getAnimeIdFromName , getAnimeNameFromId } = useAnimeBase();
+>>>>>>> Stashed changes
 
   const [questionTimer, setQuestionTimer] = useState(questionTimeoutValue);
   const [isTimerStarted, setIsTimerStarted] = useState(false);
@@ -39,20 +47,15 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
     setCurrentAnswer({ choice: undefined, customChoice: newAnswer });
   
   };
-
   const handleConfirmAnswer = () => {
-    let finalChoice: undefined | number;
-    if (currentAnswer.customChoice != undefined && currentAnswer.choice == undefined)
+
+    if (currentAnswer.customChoice != undefined)
     {
       let answerAnimeId = getAnimeIdFromName(currentAnswer.customChoice);
-      finalChoice = answerAnimeId;
-    }
-    else
-    {
-      console.log("undefined custom answer!")
+      currentAnswer.choice = answerAnimeId;
     }
     
-    answerQuestion({ customChoice: currentAnswer.customChoice, choice: finalChoice });
+    answerQuestion(currentAnswer);
   
   };
 
@@ -77,12 +80,20 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
           } else return time - 1;
         });
       }, 1000);
-    }
-    else if (gameState == GameState.QuestionTransition)
-    {
-      setCurrentAnswer({ choice: undefined, customChoice: "" });
-    }
+      }
   }, [gameState])
+
+  function QuestionTransitionResultComponent(lastAnswerData: QuestionResult) {
+    return (
+      <div>
+        <Stack>
+        <Text size="sm">Switching to next question...</Text>
+        <Text size="sm">Correct answer was: {getAnimeNameFromId(lastAnswerData.correctAnswerId)}</Text>
+        <Text size="sm">Your answer was: {getAnimeNameFromId(lastAnswerData.detectedAnswerId)}</Text>
+        </Stack>
+      </div>
+    )
+  }
 
   function StateElement() {
     return (
@@ -90,7 +101,7 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
         { gameState == GameState.QuestionReceived && <Text size="sm">Time left: {questionTimer}</Text>}
         { gameState == GameState.QuestionAnswered && <Text size="sm">Sending answer...</Text>}
         { gameState == GameState.AnswerReceived && <Text size="sm">Answer received!</Text>}
-        { gameState == GameState.QuestionTransition && <Text size="sm">Switching to next question... Last Answer: {lastAnswerData.correctAnswerId} Your Answer: {lastAnswerData.detectedAnswerId}</Text>}
+        { gameState == GameState.QuestionTransition && QuestionTransitionResultComponent(lastAnswerData)}
       </div>
     )
   }

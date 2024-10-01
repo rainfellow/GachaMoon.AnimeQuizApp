@@ -8,6 +8,7 @@ import { AnimeContext } from "@/context/anime-context";
 
 export interface IAnimeBase {
     getAnimeIdFromName: (name: string) => number | undefined
+    getAnimeNameFromId: (id: number) => string | undefined
 }
 
 export const useAnimeBase = (): IAnimeBase => {
@@ -25,5 +26,17 @@ export const useAnimeBase = (): IAnimeBase => {
         }
     };
 
-    return { getAnimeIdFromName };
+    const getAnimeNameFromId = (id: number) => {
+        if (animeLoaded)
+        {
+            var result = animes?.find((value) => value.animeId == id);
+            return result?.animeName;
+        }
+        else
+        {
+            console.log("tried to find anime before animes were loaded!")
+        }
+    };
+
+    return { getAnimeIdFromName, getAnimeNameFromId };
 };
