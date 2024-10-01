@@ -41,15 +41,20 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
   
   };
   const handleConfirmAnswer = () => {
-
+    let finalChoice: number | undefined;
     if (currentAnswer.customChoice != undefined)
-    {
-      let answerAnimeId = getAnimeIdFromName(currentAnswer.customChoice);
-      currentAnswer.choice = answerAnimeId;
-    }
+      {
+        let answerAnimeId = getAnimeIdFromName(currentAnswer.customChoice);
+        finalChoice = answerAnimeId;
+      }
+      else
+      {
+        console.log("undefined custom answer!")
+      }
+      
+      answerQuestion({ customChoice: currentAnswer.customChoice, choice: finalChoice });
+      answerQuestion(currentAnswer);
     
-    answerQuestion(currentAnswer);
-  
   };
 
   const isInLobbyScreen = () => {
@@ -74,6 +79,10 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
         });
       }, 1000);
       }
+    else if (gameState == GameState.QuestionTransition)
+    {
+      setCurrentAnswer({ choice: undefined, customChoice: "" });
+    }
   }, [gameState])
 
   function QuestionTransitionResultComponent(lastAnswerData: QuestionResult) {
