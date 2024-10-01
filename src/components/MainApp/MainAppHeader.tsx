@@ -37,9 +37,9 @@ export function MainAppHeader() {
       className={classes.link}
       data-active={active === link.link || undefined}
       onClick={(event) => {
-        //event.preventDefault();
+        event.preventDefault();
         setActive(link.link);
-        //navigate(active);
+        navigate(link.link);
       }}
     >
       {link.label}
