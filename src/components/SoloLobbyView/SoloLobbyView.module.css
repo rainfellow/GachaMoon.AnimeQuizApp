@@ -1,0 +1,20 @@
+.wrapper {
+    min-height: rem(600);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .settingsWrapper {
+    max-width: rem(300);
+    align-self:flex-start;
+    align-items: flex-start;
+  }
+
+.answerBox {
+    margin-top: 2rem;
+    max-width: rem(800);
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+
+}
