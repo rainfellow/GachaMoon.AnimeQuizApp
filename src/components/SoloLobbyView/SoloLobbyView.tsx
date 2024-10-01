@@ -1,5 +1,5 @@
 import { ReactElement, useContext, useEffect, useState } from 'react';
-import { AspectRatio, Autocomplete, Box, Button, Container, Flex, Image, Loader, LoadingOverlay, Paper, Slider, Text } from '@mantine/core';
+import { AspectRatio, Autocomplete, Box, Button, Container, Flex, Image, Loader, LoadingOverlay, Paper, Slider, Text, Stack } from '@mantine/core';
 import { AnimeContext } from '@/context/anime-context';
 import { GameState, QuestionResult } from '@/models/GameConfiguration';
 import { SoloGameContext } from '../../context/solo-game-context';
