@@ -1,25 +1,52 @@
-import { Container, Grid, Paper, Stack, Text } from "@mantine/core"
-import { ReactElement } from "react"
+import { Container, Divider, Flex, Group, Paper, rem, Stack, Text } from "@mantine/core"
+import { ReactElement, useState } from "react"
+import { CgProfile, CgList } from "react-icons/cg";
 import classes from "./AccountSettingsView.module.css"
 
 export const AccountSettingsView: React.FC = (): ReactElement => {
     
+    const [active, setActive] = useState('Billing');
+    const [selectedMenu, setSelectedMenu] = useState('');
+    const linkData = [
+    { label: 'Profile', icon: CgProfile },
+    { label: 'Anime Lists', icon: CgList }, 
+    ];
+
+    const links = linkData.map((item) => (
+        <a
+          className={classes.link}
+          data-active={item.label === active || undefined}
+          key={item.label}
+          href=''
+          onClick={(event) => {
+            event.preventDefault();
+            setActive(item.label);
+          }}
+        >
+          <item.icon className={classes.linkIcon} />
+          <div className={classes.linkText}>{item.label}</div>
+        </a>
+      ));
+
+    const showSelectedMenu = (selectedLinkKey: string) =>
+    {
+        return (
+            <></>
+        )
+    }
+
     return (
         <Paper>
-          <Container fluid>
-            <Grid gutter={0}>
-                <Grid.Col span={{ base: 12, sm: 3, md: 4, lg: 3 }}>
-                    <Stack py="md" style={{ height: '100%' }}>
-                        <Text>Profile</Text>
-                    </Stack>
-                </Grid.Col>
-                <Grid.Col span={{ base: 12, sm: 9, md: 8, lg: 9 }}>
-                    <Stack py="md" style={{ height: '100%' }}>
-                        <Text>Profile</Text>
-                    </Stack>
-
-                </Grid.Col>
-            </Grid>
+          <Container fluid className={classes.wrapper}>
+            <Group grow preventGrowOverflow={false} wrap="nowrap">
+                <Stack py="md" className={classes.navbarMain}>
+                    {links}
+                </Stack>
+                <Divider size="sm" orientation="vertical"/>
+                <Flex>
+                    {showSelectedMenu(selectedMenu)}
+                </Flex>
+            </Group>
             </Container>
         </Paper>
     )
