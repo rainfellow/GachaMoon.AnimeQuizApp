@@ -44,7 +44,6 @@ class SoloHubConnector {
                     onMessageReceived(message);
                 });
                 this.connection.on("WaitReady", async () => {
-                    console.log("waiting for ready confirmation...")
                     onWaitReady()
                     
                     // let promise = new Promise((resolve, reject) => {
@@ -63,7 +62,6 @@ class SoloHubConnector {
                           if (this.isReadyForGame) {
                             clearInterval(intervalId);
                             this.isReadyForGame = false;
-                            console.log("ready check passed.")
                             resolve(true);
                           }
                         }, 100); // Check every 100ms
@@ -71,7 +69,6 @@ class SoloHubConnector {
                     return promise;
                 });
                 this.connection.on("AskQuestion", async (question: GameQuestion) => {
-                    console.log("received question: " + question.question)
                     onAskQuestion(question);
                     let promise = new Promise<GameAnswer>((resolve, reject) => {
                         const intervalId = setInterval(() => {
@@ -86,11 +83,9 @@ class SoloHubConnector {
                     //return waitUntil(() => this.isQuestionAnswered, 100).then(() => { return this.answer; })
                 });
                 this.connection.on("ConfirmAnswerReceived", () => {
-                    console.log("answer registered by server")
                     onConfirmAnswerReceived();
                 });
                 this.connection.on("SendQuestionResult", (questionResult: QuestionResult) => {
-                    console.log("answer checked by server: " + questionResult.isCorrect)
                     onSendQuestionResult(questionResult);
                 });
                 this.connection.on("SendQuestionTransitionMessage", (durationSeconds: number) => {
@@ -98,7 +93,6 @@ class SoloHubConnector {
                     onSendQuestionTransitionMessage(durationSeconds);
                 });
                 this.connection.on("GameStarted", (gameConfiguration: GameConfiguration) => {
-                    console.log("game started!")
                     this.isQuestionAnswered = false;
                     onGameStarted(gameConfiguration);
                 });

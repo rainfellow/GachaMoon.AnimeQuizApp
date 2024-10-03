@@ -1,11 +1,12 @@
 import { useContext, useState } from 'react';
-import { Container, Group, Burger, Menu, UnstyledButton, Avatar, rem, Text, useMantineColorScheme, useComputedColorScheme, ActionIcon } from '@mantine/core';
+import { Container, Group, Burger, Menu, UnstyledButton, Avatar, rem, Text, useMantineColorScheme, useComputedColorScheme, ActionIcon, MenuDivider } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import classes from './MainAppHeader.module.css';
 import { AuthContext } from '@/context/auth-context';
 import cx from 'clsx';
 import {
     CiLogout ,
+    CiSettings,
     CiLight,
     CiDark
   } from "react-icons/ci";
@@ -29,6 +30,10 @@ export function MainAppHeader() {
   const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
 
   const navigate = useNavigate()
+
+  const handleSettingsButtonClick = () => {
+    navigate('/account');
+  }
 
   const items = links.map((link) => (
     <a
@@ -55,7 +60,7 @@ export function MainAppHeader() {
             <ActionIcon
                 onClick={() => setColorScheme(computedColorScheme === 'light' ? 'dark' : 'light')}
                 variant="default"
-                size="xl"
+                size="md"
                 aria-label="Toggle color scheme"
             >
                 {computedColorScheme === 'light' ? <CiLight className={cx(classes.icon, classes.light)}  /> : <CiDark className={cx(classes.icon, classes.dark)} />}
@@ -82,6 +87,15 @@ export function MainAppHeader() {
                 </UnstyledButton>
                 </Menu.Target>
                 <Menu.Dropdown>
+                <Menu.Item
+                    leftSection={
+                    <CiSettings style={{ width: rem(16), height: rem(16) }} />
+                    }
+                    onClick={handleSettingsButtonClick}
+                >
+                    Settings
+                </Menu.Item>
+                <MenuDivider/>
                 <Menu.Item
                     leftSection={
                     <CiLogout style={{ width: rem(16), height: rem(16) }} />
