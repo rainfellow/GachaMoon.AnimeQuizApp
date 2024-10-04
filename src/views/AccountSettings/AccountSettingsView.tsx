@@ -2,6 +2,7 @@ import { Container, Divider, Flex, Group, Paper, rem, Stack, Text } from "@manti
 import { ReactElement, useState } from "react"
 import { CgProfile, CgList } from "react-icons/cg";
 import classes from "./AccountSettingsView.module.css"
+import AnimeListsConfiguration from "@/components/AnimeLists/AnimeListsConfiguration";
 
 export const AccountSettingsView: React.FC = (): ReactElement => {
     
@@ -21,6 +22,7 @@ export const AccountSettingsView: React.FC = (): ReactElement => {
           onClick={(event) => {
             event.preventDefault();
             setActive(item.label);
+            setSelectedMenu(item.label);
           }}
         >
           <item.icon className={classes.linkIcon} />
@@ -31,14 +33,14 @@ export const AccountSettingsView: React.FC = (): ReactElement => {
     const showSelectedMenu = (selectedLinkKey: string) =>
     {
         return (
-            <></>
+            <>{selectedLinkKey == 'Anime Lists' ? <AnimeListsConfiguration/> : <></>}</>
         )
     }
 
     return (
         <Paper>
           <Container fluid className={classes.wrapper}>
-            <Group grow preventGrowOverflow={false} wrap="nowrap">
+            <Group wrap="nowrap">
                 <Stack py="md" className={classes.navbarMain}>
                     {links}
                 </Stack>
