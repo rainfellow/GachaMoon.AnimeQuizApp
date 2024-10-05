@@ -1,5 +1,4 @@
-import React, { Suspense, useEffect, useState } from 'react'
-import { AnimeContextProvider } from '@/context/anime-context';
+import React, { useEffect, useState } from 'react'
 import { Loader, SegmentedControl, Stack, Text } from '@mantine/core';
 import AnimeListDetails from './AnimeListDetails';
 import { AxiosResponse } from 'axios';

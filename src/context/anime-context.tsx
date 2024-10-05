@@ -2,7 +2,6 @@ import React, { createContext, useCallback, useEffect, useState } from "react";
 import type { ReactElement } from "react";
 import { AnimeData, AnimeFlattenedData, AnimeResponse } from "@/models/Anime";
 import { useAxios } from "@/hooks/use-axios";
-import { AxiosResponse } from "axios";
 
 export interface IAnimeContext {
     animes: AnimeData[] | undefined

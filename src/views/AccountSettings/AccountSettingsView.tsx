@@ -1,4 +1,4 @@
-import { Container, Divider, Flex, Group, Paper, rem, Stack, Text } from "@mantine/core"
+import { Container, Divider, Flex, Group, Paper, Stack } from "@mantine/core"
 import { ReactElement, useState } from "react"
 import { CgProfile, CgList } from "react-icons/cg";
 import classes from "./AccountSettingsView.module.css"

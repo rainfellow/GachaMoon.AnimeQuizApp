@@ -1,9 +1,7 @@
-import React, { Suspense, useContext, useEffect, useState } from 'react'
-import { Button, Group, Loader, LoadingOverlay, SegmentedControl, Stack, Text, TextInput } from '@mantine/core';
-import { AxiosResponse } from 'axios';
+import React, { useContext, useState } from 'react'
+import { Button, Group, LoadingOverlay, Stack, Text, TextInput } from '@mantine/core';
 import { useAxios } from '@/hooks/use-axios';
 import { AuthContext } from '@/context/auth-context';
-import { useAuth } from '@/hooks/use-auth';
 
 const ProfileSettings = () => {
   const { accountInfo, setAccountInfo } = useContext(AuthContext);

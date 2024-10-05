@@ -1,9 +1,4 @@
-import { useContext, useRef } from "react";
-import { SoloGameContext } from "../context/solo-game-context";
-import { useAuth } from "./use-auth";
-import SoloHubConnector from '../signalr-solohub'
-import { GameAnswer, GameCompletedEvent, GameConfiguration, GameQuestion, GameState, QuestionResult } from "../models/GameConfiguration";
-import React from "react";
+import { useContext } from "react";
 import { AnimeContext } from "@/context/anime-context";
 import { useAxios } from "./use-axios";
 import { AxiosResponse } from "axios";

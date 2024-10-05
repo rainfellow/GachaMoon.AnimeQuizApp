@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { Container, Group, Burger, Menu, UnstyledButton, Avatar, rem, Text, useMantineColorScheme, useComputedColorScheme, ActionIcon, MenuDivider } from '@mantine/core';
+import { Container, Group, Menu, UnstyledButton, Avatar, rem, Text, useMantineColorScheme, useComputedColorScheme, ActionIcon, MenuDivider } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import classes from './MainAppHeader.module.css';
 import { AuthContext } from '@/context/auth-context';

@@ -1,7 +1,6 @@
-import React, { Suspense } from 'react'
+import React from 'react'
 // routes config
 import { SoloGameContextProvider } from '../../context/solo-game-context'
-import { AnimeContextProvider } from '@/context/anime-context';
 import { SoloLobbyView } from '../../views/SoloLobby/SoloLobbyView';
 
 const SoloLobby = () => {

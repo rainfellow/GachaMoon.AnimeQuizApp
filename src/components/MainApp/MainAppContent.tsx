@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react'
-import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 // routes config
 import { Loader } from '@mantine/core';
 import { AnimeContextProvider } from '@/context/anime-context';
