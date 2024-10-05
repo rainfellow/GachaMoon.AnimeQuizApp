@@ -9,7 +9,10 @@ export interface IAnimeContext {
     animeLoaded: boolean;
     animeNames: string[] | undefined
     animesFlattened: AnimeFlattenedData[] | undefined
-    loadAnimes: () => Promise<void> | undefined
+    setAnimes: (animes: AnimeData[] | undefined) => void
+    setAnimeLoaded: (animeLoaded: boolean) => void
+    setAnimeNames: (animeNames: string[] | undefined) => void
+    setAnimesFlattened: (animesFlattened: AnimeFlattenedData[] | undefined) => void
 }
 
 export const AnimeContext = createContext<IAnimeContext>({
@@ -17,7 +20,11 @@ export const AnimeContext = createContext<IAnimeContext>({
     animeLoaded: false,
     animeNames: undefined,
     animesFlattened: undefined,
-    loadAnimes: () => { return undefined }
+    setAnimes: (animes: AnimeData[] | undefined) => {},
+    setAnimeLoaded: (animeLoaded: boolean) => {},
+    setAnimeNames: (animeNames: string[] | undefined) => {},
+    setAnimesFlattened: (animesFlattened: AnimeFlattenedData[] | undefined) => {}
+
 });
 
 interface AnimeContextProviderProps {
@@ -39,15 +46,17 @@ export const AnimeContextProvider: React.FC<AnimeContextProviderProps> = ({
         animeLoaded,
         animeNames,
         animesFlattened,
-        loadAnimes: useCallback(async () => {
-            axios.get("/Quiz/animes/all").then((res: AxiosResponse<AnimeResponse>) => {
-                let animesData: AnimeData[] = res.data.animeData;
-                setAnimes(animesData);
-                let flattenedAnimes = animesData.flatMap((anime) => anime.aliases.map((animeAlias) => ({ animeId: anime.animeId, malId: anime.malId, alias: animeAlias.alias, language: animeAlias.language })));
-                setAnimesFlattened(flattenedAnimes);
-                let animeNames = flattenedAnimes.map((anime) => (anime.alias));
-                setAnimeNames(animeNames);
-            }).catch((e) => { console.log("error during anime list fetching: " + e)}).finally(() => setAnimeLoaded(true));
+        setAnimes: useCallback((animes: AnimeData[] | undefined) => {
+            setAnimes(animes);
+        }, []),
+        setAnimeLoaded: useCallback((animeLoaded: boolean) => {
+            setAnimeLoaded(animeLoaded);
+        }, []),
+        setAnimeNames: useCallback((animeNames: string[] | undefined) => {
+            setAnimeNames(animeNames);
+        }, []),
+        setAnimesFlattened: useCallback((animesFlattened: AnimeFlattenedData[] | undefined) => {
+            setAnimesFlattened(animesFlattened);
         }, []),
     };
     return (

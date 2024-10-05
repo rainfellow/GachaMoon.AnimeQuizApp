@@ -5,6 +5,7 @@ import SoloHubConnector from '../signalr-solohub'
 import { GameAnswer, GameCompletedEvent, GameConfiguration, GameQuestion, GameState, QuestionResult } from "../models/GameConfiguration";
 import React from "react";
 import { AnimeContext } from "@/context/anime-context";
+import { useAnimeBase } from "./use-anime-base";
 
 export interface ISoloGame {
     startSoloLobby: () => Promise<void>;
@@ -18,7 +19,8 @@ export const useSoloGame = (): ISoloGame => {
     const { isReady, setIsReady, gameState, setGameState,
       questionTimeoutValue, setQuestionTimeoutValue, numberOfQuestionsValue, setNumberOfQuestionsValue,
       currentQuestion, setCurrentQuestion, currentAnswer, setCurrentAnswer, correctAnswers, setCorrectAnswers, gameConfiguration, setGameConfiguration, setLastAnswerData} = useContext(SoloGameContext);
-    const { animeLoaded, loadAnimes, animes } = useContext(AnimeContext);
+    const { animeLoaded, animes } = useContext(AnimeContext);
+    const { loadAnimes } = useAnimeBase();
 
     
     const handleMessageReceived = (message: string) => {

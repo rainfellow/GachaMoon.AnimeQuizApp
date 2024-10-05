@@ -14,6 +14,7 @@ import {
 import { LuSearch, LuChevronUp, LuChevronDown, LuChevronsUpDown } from 'react-icons/lu';
 import classes from './AnimeBaseTable.module.css';
 import { AnimeContext } from '@/context/anime-context';
+import { useAnimeBase } from '@/hooks/use-anime-base';
 
 interface RowData {
     animeId: number,
@@ -89,7 +90,8 @@ function sortData(
 }
 
 export function AnimeBaseTable() {
-  const { animes, loadAnimes, animeLoaded } = useContext(AnimeContext);
+  const { animes, animeLoaded } = useContext(AnimeContext);
+  const { loadAnimes } = useAnimeBase();
   const [search, setSearch] = useState('');
   const [data, setData] = useState<RowData[]>([]);
   const [sortedData, setSortedData] = useState(data);

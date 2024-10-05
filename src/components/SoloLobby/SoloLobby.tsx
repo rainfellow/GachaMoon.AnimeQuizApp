@@ -7,11 +7,9 @@ import { SoloLobbyView } from '../../views/SoloLobby/SoloLobbyView';
 const SoloLobby = () => {
 
   return (
-      <AnimeContextProvider>
-          <SoloGameContextProvider>
-              <SoloLobbyView/>
-          </SoloGameContextProvider>
-      </AnimeContextProvider>
+    <SoloGameContextProvider>
+        <SoloLobbyView/>
+    </SoloGameContextProvider>
   )
 }
 

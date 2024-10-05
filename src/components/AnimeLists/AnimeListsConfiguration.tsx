@@ -29,7 +29,6 @@ const AnimeListsConfiguration = () => {
       { 
       animeListData.animeListServiceProvider == 'NotLoaded' ? 
         <Loader/> :
-        <AnimeContextProvider>
           <Stack justify='center'>
             <Text>Choose your anime list provider</Text>
             <SegmentedControl
@@ -46,7 +45,6 @@ const AnimeListsConfiguration = () => {
               ? <AnimeListDetails provider={animeListProviderValue} animeListUser={animeListData.animeListUserId} animeListUpdateResult={animeListUpdateResult} setAnimeListUpdateResult={animeListUpdateResultReceived} selectedAnimeGroups={animeListData.selectedAnimeGroups}/> 
               : <div>No anime list will be used.</div>}
           </Stack>
-        </AnimeContextProvider>
       }
     </>
   )

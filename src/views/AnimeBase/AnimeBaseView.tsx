@@ -9,12 +9,10 @@ import { AnimeContext, AnimeContextProvider } from "@/context/anime-context";
 
 export const AnimeBaseView: React.FC = (): ReactElement => {
     return (
-        <AnimeContextProvider>
-            <Paper>
-            <Container fluid className={classes.wrapper}>
-                <AnimeBaseTable/>
-                </Container>
-            </Paper>
-        </AnimeContextProvider>
+        <Paper>
+        <Container fluid className={classes.wrapper}>
+            <AnimeBaseTable/>
+            </Container>
+        </Paper>
     )
 }
