@@ -3,6 +3,7 @@ import { ReactElement, useState } from "react"
 import { CgProfile, CgList } from "react-icons/cg";
 import classes from "./AccountSettingsView.module.css"
 import AnimeListsConfiguration from "@/components/AnimeLists/AnimeListsConfiguration";
+import ProfileSettings from "@/components/ProfileSettings/ProfileSettings";
 
 export const AccountSettingsView: React.FC = (): ReactElement => {
     
@@ -33,7 +34,9 @@ export const AccountSettingsView: React.FC = (): ReactElement => {
     const showSelectedMenu = (selectedLinkKey: string) =>
     {
         return (
-            <>{selectedLinkKey == 'Anime Lists' ? <AnimeListsConfiguration/> : <></>}</>
+            <>{selectedLinkKey == 'Anime Lists' ? <AnimeListsConfiguration/> :
+               selectedLinkKey == 'Profile' ? <ProfileSettings/> :
+               <></>}</>
         )
     }
 

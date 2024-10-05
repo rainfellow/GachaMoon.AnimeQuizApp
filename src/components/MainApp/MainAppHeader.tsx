@@ -17,6 +17,7 @@ const links = [
   { link: '/sololobby', label: 'Solo Play' },
   { link: '/mplobby', label: 'Multiplayer' },
   { link: '/customization', label: 'Customize' },
+  { link: '/animebase', label: 'Anime Base' },
 ];
 
 export function MainAppHeader() {

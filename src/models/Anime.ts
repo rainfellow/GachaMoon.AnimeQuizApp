@@ -1,13 +1,13 @@
 export interface AnimeData {
     animeId: number,
-    MALId: number,
+    malId: number,
     animeName: string,
     aliases: AnimeAliasData[]
 }
 
 export interface AnimeFlattenedData {
     animeId: number,
-    MALId: number,
+    malId: number,
     alias: string,
     language: string
 }

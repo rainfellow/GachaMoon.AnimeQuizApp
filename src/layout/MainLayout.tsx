@@ -2,7 +2,6 @@ import { useState, useEffect, useContext } from 'react'
 import { useAxios } from '../hooks/use-axios';
 import { AuthContext } from '../context/auth-context';
 import { AppShell, Burger } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
 import { MainAppHeader } from '@/components/MainApp/MainAppHeader';
 import MainAppContent from '@/components/MainApp/MainAppContent';
 

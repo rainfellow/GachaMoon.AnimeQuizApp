@@ -43,7 +43,7 @@ export const AnimeContextProvider: React.FC<AnimeContextProviderProps> = ({
             axios.get("/Quiz/animes/all").then((res: AxiosResponse<AnimeResponse>) => {
                 let animesData: AnimeData[] = res.data.animeData;
                 setAnimes(animesData);
-                let flattenedAnimes = animesData.flatMap((anime) => anime.aliases.map((animeAlias) => ({ animeId: anime.animeId, MALId: anime.MALId, alias: animeAlias.alias, language: animeAlias.language })));
+                let flattenedAnimes = animesData.flatMap((anime) => anime.aliases.map((animeAlias) => ({ animeId: anime.animeId, malId: anime.malId, alias: animeAlias.alias, language: animeAlias.language })));
                 setAnimesFlattened(flattenedAnimes);
                 let animeNames = flattenedAnimes.map((anime) => (anime.alias));
                 setAnimeNames(animeNames);
