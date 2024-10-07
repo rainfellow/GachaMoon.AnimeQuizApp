@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { Container, Group, Menu, UnstyledButton, Avatar, rem, Text, useMantineColorScheme, useComputedColorScheme, ActionIcon, MenuDivider } from '@mantine/core';
+import { Container, Group, Menu, UnstyledButton, Avatar, rem, Text, useMantineColorScheme, ActionIcon, MenuDivider } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import classes from './MainAppHeader.module.css';
 import { AuthContext } from '@/context/auth-context';
@@ -13,6 +13,7 @@ import {
 import { FaChevronDown } from "react-icons/fa";
 import { useAuth } from '@/hooks/use-auth';
 import { useNavigate } from 'react-router-dom';
+import { LocalSettingsContext } from '@/context/local-settings-context';
 const links = [
   { link: '/sololobby', label: 'Solo Play' },
   { link: '/mplobby', label: 'Multiplayer' },
@@ -28,7 +29,7 @@ export function MainAppHeader() {
   const [active, setActive] = useState("");
   const [userMenuOpened, setUserMenuOpened] = useState(false);
   const { setColorScheme } = useMantineColorScheme();
-  const computedColorScheme = useComputedColorScheme('light', { getInitialValueInEffect: true });
+  const { colorTheme, setColorTheme } = useContext(LocalSettingsContext);
 
   const navigate = useNavigate()
 
@@ -59,12 +60,12 @@ export function MainAppHeader() {
         </Group>
         <Group gap={5} visibleFrom="xs" justify='flex-end'>
             <ActionIcon
-                onClick={() => setColorScheme(computedColorScheme === 'light' ? 'dark' : 'light')}
+                onClick={() => { setColorScheme(colorTheme === 'light' ? 'dark' : 'light'); setColorTheme(colorTheme === 'light' ? 'dark' : 'light')}}
                 variant="default"
                 size="md"
                 aria-label="Toggle color scheme"
             >
-                {computedColorScheme === 'light' ? <CiLight className={cx(classes.icon, classes.light)}  /> : <CiDark className={cx(classes.icon, classes.dark)} />}
+                {colorTheme === 'light' ? <CiLight className={cx(classes.icon, classes.light)}  /> : <CiDark className={cx(classes.icon, classes.dark)} />}
             </ActionIcon>
             <Menu
                 width={260}

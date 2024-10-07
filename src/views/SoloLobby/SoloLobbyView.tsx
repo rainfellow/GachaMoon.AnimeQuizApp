@@ -1,11 +1,14 @@
 import { ReactElement, useContext, useEffect, useState } from 'react';
-import { AspectRatio, Autocomplete, Box, Button, Container, Flex, Image, Loader, LoadingOverlay, Paper, Slider, Text, Stack, rem } from '@mantine/core';
+import { AspectRatio, Button, Container, Flex, Image, Loader, Paper, Slider, Text, Stack, rem, Fieldset, Group } from '@mantine/core';
 import { AnimeContext } from '@/context/anime-context';
 import { GameState, QuestionResult } from '@/models/GameConfiguration';
 import { SoloGameContext } from '../../context/solo-game-context';
 import { useSoloGame } from '../../hooks/use-solo-game';
 import { useAnimeBase } from '@/hooks/use-anime-base';
 import classes from './SoloLobbyView.module.css';
+import { LanguagePicker } from '@/components/LanguagePicker/LanguagePicker';
+import { AnimeAutocomplete } from '@/components/AnimeAutocomplete/AnimeAutocomplete';
+import { AnimeAutocompleteConfig } from '@/components/AnimeAutocompleteConfig/AnimeAutocompleteConfig';
 
 export const SoloLobbyView: React.FC = (): ReactElement => {
 
@@ -15,14 +18,14 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
   
   const { startSoloLobby, startSoloGame, answerQuestion } = useSoloGame();
 
-  const { animeLoaded, animeNames } = useContext(AnimeContext);
+  const { animeLoaded, animeNames, animes } = useContext(AnimeContext);
 
   const { getAnimeIdFromName , getAnimeNameFromId } = useAnimeBase();
 
   const [questionTimer, setQuestionTimer] = useState(questionTimeoutValue);
   const [isTimerStarted, setIsTimerStarted] = useState(false);
   const [loading, setLoading] = useState(true);
-
+  const [animeDefaultLanguage, setAnimeDefaultLanguage] = useState('en');
 
   const handleTimeRangeChange = (value: number) => {
 
@@ -53,7 +56,6 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
       }
       
       answerQuestion({ customChoice: currentAnswer.customChoice, choice: finalChoice });
-      answerQuestion(currentAnswer);
     
   };
 
@@ -123,11 +125,15 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
           wrap="wrap"
         >
           <Container fluid className={classes.settingsWrapper}>
-            <Text size="sm">Time per question</Text>
-            <Slider value={questionTimeoutValue} onChangeEnd={handleTimeRangeChange} label={(value) => `${value} sec`} min={15} max={35} marks={[{ value: 15 }, { value: 25 }, { value: 35 }]} />
-            <Text size="sm">Number of questions</Text>
-            <Slider value={numberOfQuestionsValue} onChangeEnd={handleQuestionNumberRangeChange} label={(value) => `${value}`} min={5} max={30} marks={[{ value: 5 }, { value: 20 }, { value: 30 }]} />
-            <Button size="md" onClick={startSoloGame}>Start Game</Button>
+            <Fieldset legend="Basic settings">
+              <Text size="sm">Time per question</Text>
+              <Slider value={questionTimeoutValue} onChangeEnd={handleTimeRangeChange} label={(value) => `${value} sec`} min={15} max={35} marks={[{ value: 15 }, { value: 25 }, { value: 35 }]} />
+              <Text size="sm">Number of questions</Text>
+              <Slider value={numberOfQuestionsValue} onChangeEnd={handleQuestionNumberRangeChange} label={(value) => `${value}`} min={5} max={30} marks={[{ value: 5 }, { value: 20 }, { value: 30 }]} />
+            </Fieldset>
+            <Group justify="flex-end" mt="md">
+            <Button onClick={startSoloGame}>Start Game</Button>
+            </Group>
           </Container>
         </Flex>
       </Paper>
@@ -168,19 +174,20 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
           <AspectRatio ratio={16 / 9} maw={720} mx="auto">
             <ImageLoader url={currentQuestion.question}/>
           </AspectRatio>
-          <div>
-            <Autocomplete 
-              className={classes.answerBox}
-              placeholder=""
-              limit={25}
-              data={animeNames}
-              value={currentAnswer.customChoice}
-              onChange={handleAnswerChange}
-            />
-          </div>
+          
+        { 
+          gameState != GameState.Finished &&
+          <>
+          <Group className={classes.answerComponent}>
+              <AnimeAutocomplete
+                  className={classes.answerBox} data={animes} limit={25} value={currentAnswer.customChoice} onChange={handleAnswerChange}/>
+                  <AnimeAutocompleteConfig/>
+          </Group>
           <Button size="md" onClick={handleConfirmAnswer}>
-            Send Answer
+              Send Answer
           </Button>
+          </>
+        }
         </Container>
       </Paper>
     );

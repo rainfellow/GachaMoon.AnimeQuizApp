@@ -19,14 +19,14 @@ const AnimeListsConfiguration = () => {
       axios.get('Account/myanimelist').then((response: AxiosResponse) => {
           setAnimeListData(response.data)
           setAnimeListProviderValue(response.data.animeListServiceProvider)
-          console.log("fetched anime list " + response.data.selectedAnimeGroups)
+          console.log("fetched anime list of user " + response.data.animeListUserId)
       })
   }, [animeListUpdateResult])
 
   return (
     <>
       { 
-      animeListData.animeListServiceProvider == 'NotLoaded' ? 
+      (animeListData.animeListServiceProvider == 'NotLoaded' || animeListData.animeListUserId == "" || animeListData.userAnimes.length == 0 || animeListData.selectedAnimeGroups.length == 0) ? 
         <Loader/> :
           <Stack justify='center'>
             <Text>Choose your anime list provider</Text>
@@ -38,6 +38,7 @@ const AnimeListsConfiguration = () => {
                 { label: 'MyAnimeList', value: 'MyAnimeList' },
                 { label: 'Anilist', value: 'Anilist', disabled: true },
                 { label: 'Shikimori', value: 'Shikimori', disabled: true },
+                { label: 'Custom', value: 'Custom', disabled: true },
                 ]}
             />
             {animeListProviderValue != 'None'

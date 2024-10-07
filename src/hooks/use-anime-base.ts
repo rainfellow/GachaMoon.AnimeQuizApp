@@ -17,7 +17,7 @@ export const useAnimeBase = (): IAnimeBase => {
     const getAnimeIdFromName = (name: string) => {
         if (animeLoaded)
         {
-            var result = animesFlattened?.find((value) => value.alias.toLowerCase() == name.toLowerCase());
+            var result = animesFlattened?.find((value) => value.alias.toLocaleLowerCase() == name.toLocaleLowerCase());
             return result?.animeId;
         }
         else
@@ -43,13 +43,17 @@ export const useAnimeBase = (): IAnimeBase => {
         .then((res: AxiosResponse<AnimeResponse>) => {
             let animesData: AnimeData[] = res.data.animeData;
             setAnimes(animesData);
-            let flattenedAnimes = animesData.flatMap((anime) => anime.aliases.map((animeAlias) => ({ animeId: anime.animeId, malId: anime.malId, alias: animeAlias.alias, language: animeAlias.language })));
+            let flattenedAnimes = animesData.flatMap((anime) => {
+                let a = anime.aliases.map((animeAlias) => ({ animeId: anime.animeId, malId: anime.malId, alias: animeAlias.alias, language: animeAlias.language }));
+                a.push({ animeId: anime.animeId, alias: anime.animeName, malId: anime.malId, language: 'EN'});
+                return a;
+            });
             setAnimesFlattened(flattenedAnimes);
             let animeNames = flattenedAnimes.map((anime) => (anime.alias));
             setAnimeNames(animeNames);
         })
         .catch((e) => { console.log("error during anime list fetching: " + e)})
-        .then(() => setAnimeLoaded(true));
+        .then(() => { setAnimeLoaded(true); console.log("loaded animes"); });
     }
 
     return { getAnimeIdFromName, getAnimeNameFromId, loadAnimes };

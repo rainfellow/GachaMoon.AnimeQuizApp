@@ -69,7 +69,6 @@ export const useSoloGame = (): ISoloGame => {
         if(!animeLoaded)
         {
           await loadAnimes();
-          console.log("loaded animes: " + animes?.length);
         }
     }
 

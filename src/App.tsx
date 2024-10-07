@@ -3,10 +3,10 @@ import '@mantine/core/styles.css';
 import { Loader, MantineProvider } from '@mantine/core';
 import { Router } from './Router';
 import { theme } from './theme';
-import React, { Suspense, useContext, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useLocalStorage } from './hooks/use-local-storage';
 import { useAuth } from './hooks/use-auth';
-import { AuthContext } from './context/auth-context';
+import { LocalSettingsContextProvider } from './context/local-settings-context';
 
 export default function App() {
 
@@ -14,13 +14,6 @@ export default function App() {
     const defaultColorTheme = "dark"
     const { getItem } = useLocalStorage();
     const { login, isAuthenticated } = useAuth();
-    const { accountInfo } = useContext(AuthContext);
-
-    useEffect(() => {
-        const themeLocalKeyName = "mantine-color-scheme-value";
-        const themeLocalStorageValue = getItem(themeLocalKeyName);
-        localStorage.setItem(themeLocalKeyName, themeLocalStorageValue ?? defaultColorTheme);
-    }, []);
 
     useEffect(() => {
         if (!initialized) {
@@ -43,7 +36,12 @@ export default function App() {
                   </div>
                 }
             >
-          { initialized && <Router />}
+            {
+                initialized && 
+                <LocalSettingsContextProvider>
+                    <Router />
+                </LocalSettingsContextProvider>
+            }
           </Suspense>
         </MantineProvider>
     );
