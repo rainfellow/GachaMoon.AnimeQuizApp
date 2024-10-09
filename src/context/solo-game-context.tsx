@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useState } from "react";
 import type { ReactElement } from "react";
-import { GameAnswer, GameCompletedEvent, GameConfiguration, GameQuestion, GameState, QuestionResult } from "../models/GameConfiguration";
+import { GameAnswer, GameCompletedEvent, GameConfiguration, GameQuestion, GameRecap, GameState, PlayerAnswerRecap, PlayerAnswersRecapsMap, QuestionResult } from "../models/GameConfiguration";
+import { List } from "@mantine/core";
 
 export interface ISoloGameContext {
     isReady: boolean;
@@ -21,6 +22,8 @@ export interface ISoloGameContext {
     setGameConfiguration: (gameConfiguration: GameConfiguration) => void;
     lastAnswerData: QuestionResult;
     setLastAnswerData: (questionResult: QuestionResult) => void;
+    gameRecap: GameRecap;
+    setGameRecap: (gameRecap: GameRecap) => void;   
 }
 
 export const SoloGameContext = createContext<ISoloGameContext>({
@@ -43,6 +46,8 @@ export const SoloGameContext = createContext<ISoloGameContext>({
     setGameConfiguration: () => { console.log("setting game config") },
     lastAnswerData: { correctAnswerId: 0, detectedAnswerId: 0, isCorrect: false },
     setLastAnswerData: () => { console.log("setting game config") },
+    gameRecap: { correctAnswers: [], playerAnswersRecaps: {} },
+    setGameRecap: () => { console.log("setting game recap") },
 });
 
 interface SoloGameContextProviderProps {
@@ -64,6 +69,7 @@ export const SoloGameContextProvider: React.FC<SoloGameContextProviderProps> = (
     const [ correctAnswers, setCorrectAnswers ] = useState(0);
     const [ lastAnswerData, setLastAnswerData ] = useState( { correctAnswerId: 0, detectedAnswerId: 0, isCorrect: false });
     const [ gameConfiguration, setGameConfiguration ] = useState({ questionTimeout: 20, numberOfQuestions: 10 });
+    const [ gameRecap, setGameRecap ] = useState({ correctAnswers: [{answer: 0, question: ""}], playerAnswersRecaps: {} });
     const contextValue = {
         isReady,
         setIsReady: useCallback((isReady: boolean) => {
@@ -101,6 +107,11 @@ export const SoloGameContextProvider: React.FC<SoloGameContextProviderProps> = (
         setLastAnswerData: useCallback((lastAnswerData: QuestionResult) => {
             setLastAnswerData(lastAnswerData);
         }, []),
+        gameRecap,
+        setGameRecap: useCallback((gameRecap: GameRecap) => {
+            setGameRecap(gameRecap);
+        }, []),
+
     };
 
     return (

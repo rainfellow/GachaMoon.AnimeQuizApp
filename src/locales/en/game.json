@@ -1,0 +1,14 @@
+{
+    "BasicSettingsLabel": "Basic Settings",
+    "TimePerQuestionLabel": "Time per question",
+    "NumberOfQuestionsLabel": "Number of questions",
+    "StartGameButton": "Start Game",
+    "ConfigureAutocompleteLabel": "Configure Autocomplete Behaviour",
+    "AutocompleteBehaviourDefaultLabel": "Default",
+    "AutocompleteBehaviourUseLanguageLabel": "Use Set Language",
+    "AutocompleteBehaviourClosestMatchLabel": "Closest Match",
+    "AutocompleteBehaviourDefaultTooltip": "When typing an answer, displayed options will use that anime's default title, provided by MyAnimeList.",
+    "AutocompleteBehaviourUseLanguageTooltip": "When typing an answer, displayed options will always be in the selected language. If no title in that language is present for an anime, the official title will be displayed instead. Displayed title might not be the one that matches your input the most.",
+    "AutocompleteBehaviourClosestMatchTooltip": "When typing an answer, displayed options will always use the title that matches your input the most. Titles using selected language will be prioritized, but you can still type in any language. Only Japanese and English language support is guaranteed for every anime."
+
+}

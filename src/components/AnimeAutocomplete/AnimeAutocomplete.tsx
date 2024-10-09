@@ -11,44 +11,58 @@ interface AnimeFilteredData {
 
 function getFilteredOptions(data: AnimeData[], searchQuery: string, limit: number, settings: AnimeAutocompleteSettings) {
   const result: AnimeFilteredData[] = [];
-
+  if (searchQuery.length < 3 && settings.autocompleteBehaviour == AnimeAutocompleteOptionDisplay.Closest)
+  {
+    return result;
+  }
   for (let i = 0; i < data.length; i += 1) {
 
     if (result.length === limit) {
       break;
     }
-    
+    let eligible = data[i].animeName.trim().toLocaleLowerCase().includes(searchQuery.trim().toLocaleLowerCase());
     let best_alias = '';
-    let best_lang_alias = ''
-    if (data[i].animeName.toLocaleLowerCase().includes(searchQuery.trim().toLocaleLowerCase())) {
-        best_alias = data[i].animeName;
-    }
+    let best_alias_is_language = false;
+    let longest_lang_alias = '';
   
     for(let j = 0; j < data[i].aliases.length; j++)
     {
-        if (data[i].aliases[j].alias.toLocaleLowerCase().includes(searchQuery.trim().toLocaleLowerCase())) {
-            best_alias = data[i].aliases[j].alias.length > best_alias.length ? data[i].aliases[j].alias : best_alias;
-        }
-        if(data[i].aliases[j].language == settings.autocompleteLanguageCode)
+        let aliasIncludesString = data[i].aliases[j].alias.trim().toLocaleLowerCase().includes(searchQuery.trim().toLocaleLowerCase());
+        let aliasIsSelectedLanguage = data[i].aliases[j].language == settings.autocompleteLanguageCode;
+        eligible = eligible || aliasIncludesString;
+        if (aliasIsSelectedLanguage)
         {
-            best_lang_alias = data[i].aliases[j].alias.length > best_lang_alias.length ? data[i].aliases[j].alias : best_lang_alias;
+            longest_lang_alias = data[i].aliases[j].alias.length > longest_lang_alias.length ? data[i].aliases[j].alias : longest_lang_alias;
+        }
+        if(!best_alias_is_language && aliasIncludesString && !aliasIsSelectedLanguage)
+        {
+          best_alias = data[i].aliases[j].alias.length > best_alias.length ? data[i].aliases[j].alias : best_alias;
+        }
+        if (aliasIncludesString && aliasIsSelectedLanguage)
+        {
+          best_alias = data[i].aliases[j].alias.length > best_alias.length ? data[i].aliases[j].alias : best_alias;
+          best_alias_is_language = true;
         }
     }
 
-    if (best_lang_alias == '')
+    if (eligible)
     {
-      best_lang_alias = data[i].animeName;
-    }
+      if (longest_lang_alias == '')
+      {
+        longest_lang_alias = data[i].animeName;
+      }
+      if (best_alias == '')
+      {
+        best_alias = data[i].animeName;
+      }
 
-    if (best_alias != '')
-    {
       switch(settings.autocompleteBehaviour) { 
         case AnimeAutocompleteOptionDisplay.Default: { 
           result.push({animeData: data[i], filteredAnimeString: data[i].animeName});
           break; 
         } 
         case AnimeAutocompleteOptionDisplay.InLanguage: { 
-          result.push({animeData: data[i], filteredAnimeString: best_lang_alias});
+          result.push({animeData: data[i], filteredAnimeString: longest_lang_alias});
           break; 
         } 
         case AnimeAutocompleteOptionDisplay.Closest: { 

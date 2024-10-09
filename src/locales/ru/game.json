@@ -1,0 +1,15 @@
+{
+    "BasicSettingsLabel": "Базовые настройки",
+    "TimePerQuestionLabel": "Время на вопрос",
+    "NumberOfQuestionsLabel": "Количество вопросов",
+    "StartGameButton": "Начать игру",
+    "ConfigureAutocompleteLabel": "Настроить автозаполнение аниме",
+    "AutocompleteBehaviourDefaultLabel": "Стандартный",
+    "AutocompleteBehaviourUseLanguageLabel": "Использовать язык",
+    "AutocompleteBehaviourClosestMatchLabel": "Лучшее совпадение",
+    "AutocompleteBehaviourDefaultTooltip": "При наборе ответа всегда отображается официальное название аниме (по MyAnimeList)",
+    "AutocompleteBehaviourUseLanguageTooltip": "При наборе ответа всегда отображается название аниме на выбранном языке, если оно существует в базе. В противном случае отображается официальное название аниме. Если у аниме несколько названий на выбранном языке, отображается одно любое.",
+    "AutocompleteBehaviourClosestMatchTooltip": "При наборе ответа всегда отображается название с наилучшим совпадением с введенным текстом. В приоритете будут названия на выбранном языке, однако вводить все еще можно на любом. У аниме всегда есть хотя бы одно название на японском и английском, остальные языки не гарантируются."
+
+
+}

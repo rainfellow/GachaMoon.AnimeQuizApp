@@ -46,17 +46,6 @@ class SoloHubConnector {
                 this.connection.on("WaitReady", async () => {
                     onWaitReady()
                     
-                    // let promise = new Promise((resolve, reject) => {
-                    //     setTimeout(() => {
-                    //         if(this.isResolved === false)
-                    //         {
-                    //             console.log("sending ready token")
-                    //             this.isResolved = true;
-                    //             resolve(true);
-                    //         }
-                    //     }, 2000);
-                    // });
-                    // return promise;
                     let promise: Promise<boolean> = new Promise((resolve, reject) => {
                         const intervalId = setInterval(() => {
                           if (this.isReadyForGame) {
@@ -64,7 +53,7 @@ class SoloHubConnector {
                             this.isReadyForGame = false;
                             resolve(true);
                           }
-                        }, 100); // Check every 100ms
+                        }, 100);
                       });
                     return promise;
                 });
@@ -77,10 +66,9 @@ class SoloHubConnector {
                             this.isQuestionAnswered = false;
                             resolve(this.answer);
                         }
-                        }, 100); // Check every 100ms
+                        }, 100);
                     });
                     return promise;
-                    //return waitUntil(() => this.isQuestionAnswered, 100).then(() => { return this.answer; })
                 });
                 this.connection.on("ConfirmAnswerReceived", () => {
                     onConfirmAnswerReceived();

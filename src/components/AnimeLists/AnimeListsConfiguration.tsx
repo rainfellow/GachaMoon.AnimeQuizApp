@@ -4,12 +4,14 @@ import AnimeListDetails from './AnimeListDetails';
 import { AxiosResponse } from 'axios';
 import { useAxios } from '@/hooks/use-axios';
 import { AnimeListUpdateResponse } from '@/models/AnimeLists';
+import { useTranslation } from 'react-i18next';
 
 const AnimeListsConfiguration = () => {
     const [animeListProviderValue, setAnimeListProviderValue] = useState('none');
     const axios = useAxios();
     const [animeListData, setAnimeListData] = useState({ animeListServiceProvider: 'NotLoaded', animeListUserId: "", userAnimes: [], selectedAnimeGroups: []});
     const [animeListUpdateResult, setAnimeListUpdateResult] = useState({externalServiceUserId: '', animeCount: 0});
+    const { t } = useTranslation('settings');
 
     const animeListUpdateResultReceived = (response: AnimeListUpdateResponse) => {
       setAnimeListUpdateResult(response);
@@ -26,10 +28,10 @@ const AnimeListsConfiguration = () => {
   return (
     <>
       { 
-      (animeListData.animeListServiceProvider == 'NotLoaded' || animeListData.animeListUserId == "" || animeListData.userAnimes.length == 0 || animeListData.selectedAnimeGroups.length == 0) ? 
+      (animeListData.animeListServiceProvider == 'NotLoaded') ? 
         <Loader/> :
           <Stack justify='center'>
-            <Text>Choose your anime list provider</Text>
+            <Text>{t('AnimeListProviderMainLabel')}</Text>
             <SegmentedControl
                 value={animeListProviderValue}
                 onChange={setAnimeListProviderValue}
@@ -43,7 +45,7 @@ const AnimeListsConfiguration = () => {
             />
             {animeListProviderValue != 'None'
               ? <AnimeListDetails provider={animeListProviderValue} animeListUser={animeListData.animeListUserId} animeListUpdateResult={animeListUpdateResult} setAnimeListUpdateResult={animeListUpdateResultReceived} selectedAnimeGroups={animeListData.selectedAnimeGroups}/> 
-              : <div>No anime list will be used.</div>}
+              : <div>{t('AnimeListProviderNoneDescription')}</div>}
           </Stack>
       }
     </>

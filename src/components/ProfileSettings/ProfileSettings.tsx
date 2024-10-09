@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react'
 import { Button, Group, LoadingOverlay, Stack, Text, TextInput } from '@mantine/core';
 import { useAxios } from '@/hooks/use-axios';
 import { AuthContext } from '@/context/auth-context';
+import { useTranslation } from 'react-i18next';
 
 const ProfileSettings = () => {
   const { accountInfo, setAccountInfo } = useContext(AuthContext);
@@ -9,6 +10,7 @@ const ProfileSettings = () => {
   const [isAccountSettingsUpdating, setIsAccountSettingsUpdating] = useState(false);
   const [accountSettingsUpdateResult, setAccountSettingsUpdateResult] = useState<boolean | null>(null);
   const axios = useAxios();
+  const { t } = useTranslation('settings')
 
   const loadInfo = () => {
     return axios.get("/Account/me").then((res) => {
@@ -33,8 +35,8 @@ const ProfileSettings = () => {
   const accountSettingsUpdateResultElement = (accountSettingsUpdateResult: boolean | null) => {
     return (
       <Group justify="flex-start" mt="md">
-          {accountSettingsUpdateResult == true ? <Text color='green'>Profile settings updated successfully.</Text> 
-          : accountSettingsUpdateResult == false ? <Text color='red'>Error. Account settings were not updated.</Text>
+          {accountSettingsUpdateResult == true ? <Text color='green'>{t('ProfileUpdateSuccess')}</Text> 
+          : accountSettingsUpdateResult == false ? <Text color='red'>{t('ProfileUpdateError')}</Text>
           : <></>}
       </Group>
     )
@@ -44,11 +46,11 @@ const ProfileSettings = () => {
     <Stack justify='center'>
       <LoadingOverlay visible={isAccountSettingsUpdating} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
       <Group justify="flex-start" mt="md">
-        <TextInput label="Account Name" value={accountNameValue} onChange={(event) => {setAccountNameValue(event.currentTarget.value); setAccountSettingsUpdateResult(null); }} />
+        <TextInput label={t('AccountNameLabel')} value={accountNameValue} onChange={(event) => {setAccountNameValue(event.currentTarget.value); setAccountSettingsUpdateResult(null); }} />
         {accountSettingsUpdateResultElement(accountSettingsUpdateResult)}
       </Group>
       <Group justify="flex-end" mt="md">
-        <Button onClick={handleUpdateProfileSettings}>Update profile</Button>
+        <Button onClick={handleUpdateProfileSettings}>{t('UpdateProfileButton')}</Button>
       </Group>
     </Stack>
   )

@@ -16,6 +16,7 @@ export interface QuestionResult {
 export interface GameCompletedEvent {
     correct: number;
     name: string;
+    gameRecap: GameRecap;
 }
 
 export interface GameAnswer {
@@ -24,5 +25,25 @@ export interface GameAnswer {
 }
 
 export enum GameState {
-    None, Lobby, Starting, QuestionReceived, QuestionAnswered, AnswerReceived, QuestionTransition, Finished
+    None, Lobby, Starting, Started, QuestionReceived, QuestionAnswered, AnswerReceived, QuestionTransition, Finished
+}
+
+export interface GameRecap {
+    correctAnswers: QuestionRecap[];
+    playerAnswersRecaps: PlayerAnswersRecapsMap;
+
+}
+export interface QuestionRecap {
+    answer: number;
+    question: string;
+}
+
+export interface PlayerAnswersRecapsMap {
+    [key: number]: PlayerAnswerRecap[];
+}
+
+export interface PlayerAnswerRecap {
+    playerAnswer: number;
+    isCorrect: boolean;
+    timeToAnswer: number;
 }

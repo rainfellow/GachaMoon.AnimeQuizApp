@@ -3,10 +3,10 @@ import '@mantine/core/styles.css';
 import { Loader, MantineProvider } from '@mantine/core';
 import { Router } from './Router';
 import { theme } from './theme';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useContext, useEffect, useState } from 'react';
 import { useLocalStorage } from './hooks/use-local-storage';
 import { useAuth } from './hooks/use-auth';
-import { LocalSettingsContextProvider } from './context/local-settings-context';
+import { useTranslation } from 'react-i18next';
 
 export default function App() {
 
@@ -14,6 +14,7 @@ export default function App() {
     const defaultColorTheme = "dark"
     const { getItem } = useLocalStorage();
     const { login, isAuthenticated } = useAuth();
+    const { i18n } = useTranslation();
 
     useEffect(() => {
         if (!initialized) {
@@ -23,6 +24,7 @@ export default function App() {
                     login(JSON.parse(account));
                 }
             }
+            i18n.changeLanguage(getItem('language') ?? 'en');
             setInitialized(true);
         }
     }, []);
@@ -36,12 +38,7 @@ export default function App() {
                   </div>
                 }
             >
-            {
-                initialized && 
-                <LocalSettingsContextProvider>
-                    <Router />
-                </LocalSettingsContextProvider>
-            }
+            { initialized && <Router /> }
           </Suspense>
         </MantineProvider>
     );

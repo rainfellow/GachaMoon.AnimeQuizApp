@@ -9,9 +9,11 @@ import classes from './SoloLobbyView.module.css';
 import { LanguagePicker } from '@/components/LanguagePicker/LanguagePicker';
 import { AnimeAutocomplete } from '@/components/AnimeAutocomplete/AnimeAutocomplete';
 import { AnimeAutocompleteConfig } from '@/components/AnimeAutocompleteConfig/AnimeAutocompleteConfig';
+import { useTranslation } from 'react-i18next';
+import { SoloGameRecap } from '@/components/SoloGameRecap/SoloGameRecap';
 
 export const SoloLobbyView: React.FC = (): ReactElement => {
-
+  const { t } = useTranslation('game');
   const { isReady, setIsReady, gameState, gameConfiguration,
     questionTimeoutValue, setQuestionTimeoutValue, numberOfQuestionsValue, setNumberOfQuestionsValue,
     currentQuestion, setCurrentQuestion, currentAnswer, setCurrentAnswer, correctAnswers, setCorrectAnswers, lastAnswerData } = useContext(SoloGameContext);
@@ -25,7 +27,6 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
   const [questionTimer, setQuestionTimer] = useState(questionTimeoutValue);
   const [isTimerStarted, setIsTimerStarted] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [animeDefaultLanguage, setAnimeDefaultLanguage] = useState('en');
 
   const handleTimeRangeChange = (value: number) => {
 
@@ -102,6 +103,7 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
   function StateElement() {
     return (
       <div>
+        { gameState == GameState.Started && <Text size="sm">Game started. Waiting for the first question.</Text>}
         { gameState == GameState.QuestionReceived && <Text size="sm">Time left: {questionTimer}</Text>}
         { gameState == GameState.QuestionAnswered && <Text size="sm">Sending answer...</Text>}
         { gameState == GameState.AnswerReceived && <Text size="sm">Answer received!</Text>}
@@ -125,14 +127,14 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
           wrap="wrap"
         >
           <Container fluid className={classes.settingsWrapper}>
-            <Fieldset legend="Basic settings">
-              <Text size="sm">Time per question</Text>
+            <Fieldset legend={t('BasicSettingsLabel')}>
+              <Text size="sm">{t('TimePerQuestionLabel')}</Text>
               <Slider value={questionTimeoutValue} onChangeEnd={handleTimeRangeChange} label={(value) => `${value} sec`} min={15} max={35} marks={[{ value: 15 }, { value: 25 }, { value: 35 }]} />
-              <Text size="sm">Number of questions</Text>
+              <Text size="sm">{t('NumberOfQuestionsLabel')}</Text>
               <Slider value={numberOfQuestionsValue} onChangeEnd={handleQuestionNumberRangeChange} label={(value) => `${value}`} min={5} max={30} marks={[{ value: 5 }, { value: 20 }, { value: 30 }]} />
             </Fieldset>
             <Group justify="flex-end" mt="md">
-            <Button onClick={startSoloGame}>Start Game</Button>
+            <Button loading={gameState == GameState.Starting} loaderProps={{ type: 'dots' }}onClick={startSoloGame}>{t('StartGameButton')}</Button>
             </Group>
           </Container>
         </Flex>
@@ -203,6 +205,7 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
 
   return (
     <>
-    {(gameState != GameState.None && animeLoaded) ? ((isInLobbyScreen()) ? settingsScreen() : playingScreen()) : loadingScreen()}</>
+    { gameState == GameState.Finished ? <SoloGameRecap/> : 
+      (gameState != GameState.None && animeLoaded) ? ((isInLobbyScreen()) ? settingsScreen() : playingScreen()) : loadingScreen()}</>
   );
 }

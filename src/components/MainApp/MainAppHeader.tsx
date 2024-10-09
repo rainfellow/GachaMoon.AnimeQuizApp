@@ -1,6 +1,5 @@
 import { useContext, useState } from 'react';
 import { Container, Group, Menu, UnstyledButton, Avatar, rem, Text, useMantineColorScheme, ActionIcon, MenuDivider } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
 import classes from './MainAppHeader.module.css';
 import { AuthContext } from '@/context/auth-context';
 import cx from 'clsx';
@@ -14,22 +13,24 @@ import { FaChevronDown } from "react-icons/fa";
 import { useAuth } from '@/hooks/use-auth';
 import { useNavigate } from 'react-router-dom';
 import { LocalSettingsContext } from '@/context/local-settings-context';
+import { useTranslation } from 'react-i18next';
+import { LanguageConfigButton } from '../LanguageConfigButton/LanguageConfigButton';
 const links = [
-  { link: '/sololobby', label: 'Solo Play' },
-  { link: '/mplobby', label: 'Multiplayer' },
-  { link: '/customization', label: 'Customize' },
-  { link: '/animebase', label: 'Anime Base' },
+  { link: '/sololobby', label: 'SoloPlayButtonTitle' },
+  { link: '/mplobby', label: 'MultiplayerButtonTitle' },
+  { link: '/customization', label: 'CustomizeButtonTitle' },
+  { link: '/animebase', label: 'AnimeBaseButtonTitle' },
 ];
 
 export function MainAppHeader() {
   const { accountInfo } = useContext(AuthContext);
 
-  const [opened, { toggle }] = useDisclosure(false);
   const { logout } = useAuth();
   const [active, setActive] = useState("");
   const [userMenuOpened, setUserMenuOpened] = useState(false);
   const { setColorScheme } = useMantineColorScheme();
   const { colorTheme, setColorTheme } = useContext(LocalSettingsContext);
+  const { t } = useTranslation('header'); 
 
   const navigate = useNavigate()
 
@@ -49,7 +50,7 @@ export function MainAppHeader() {
         navigate(link.link);
       }}
     >
-      {link.label}
+      {t(link.label)}
     </a>
   ));
 
@@ -59,6 +60,7 @@ export function MainAppHeader() {
           {items}
         </Group>
         <Group gap={5} visibleFrom="xs" justify='flex-end'>
+            <LanguageConfigButton/>
             <ActionIcon
                 onClick={() => { setColorScheme(colorTheme === 'light' ? 'dark' : 'light'); setColorTheme(colorTheme === 'light' ? 'dark' : 'light')}}
                 variant="default"
@@ -95,7 +97,7 @@ export function MainAppHeader() {
                     }
                     onClick={handleSettingsButtonClick}
                 >
-                    Settings
+                    {t('SettingsMenuButtonTitle')}
                 </Menu.Item>
                 <MenuDivider/>
                 <Menu.Item
@@ -104,7 +106,7 @@ export function MainAppHeader() {
                     }
                     onClick={logout}
                 >
-                    Logout
+                    {t('LogoutMenuButtonTitle')}
                 </Menu.Item>
                 </Menu.Dropdown>
             </Menu>

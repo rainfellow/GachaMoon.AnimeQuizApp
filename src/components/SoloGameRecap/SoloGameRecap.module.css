@@ -1,0 +1,11 @@
+.wrapper {
+    min-height: rem(600);
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    align-content: space-between;
+    flex-wrap: nowrap;
+  }

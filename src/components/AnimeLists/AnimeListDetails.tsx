@@ -3,6 +3,7 @@ import { Button, Checkbox, Fieldset, Group, Loader, LoadingOverlay, SegmentedCon
 import { useAxios } from '@/hooks/use-axios';
 import { AxiosResponse } from 'axios';
 import { AnimeListUpdateResponse } from '@/models/AnimeLists';
+import { useTranslation } from 'react-i18next';
 
 const AnimeListDetails = (props: { provider: string; animeListUser: string | null; setAnimeListUpdateResult: (arg0: AnimeListUpdateResponse) => void; animeListUpdateResult: AnimeListUpdateResponse; selectedAnimeGroups: any[] | null}) => {
     const [serviceUsername, setServiceUsername] = useState(props.animeListUser == null ? '' : props.animeListUser);
@@ -12,6 +13,7 @@ const AnimeListDetails = (props: { provider: string; animeListUser: string | nul
     const [droppedAnimeAllowed, setDroppedAnimeAllowed] = useState(props.selectedAnimeGroups != null && props.selectedAnimeGroups.find((value) => value == "dropped") != undefined);
     const [plannedAnimeAllowed, setPlannedAnimeAllowed] = useState(props.selectedAnimeGroups != null && props.selectedAnimeGroups.find((value) => value == "planned") != undefined);
     const [isAnimeListUpdating, setIsAnimeListUpdating] = useState(false);
+    const { t } = useTranslation('settings');
 
     const axios = useAxios();
 
@@ -50,27 +52,27 @@ const AnimeListDetails = (props: { provider: string; animeListUser: string | nul
   return (
     <>
     <Stack justify='flex-start'>
-        <Fieldset legend="Anime List Provider Settings">
+        <Fieldset legend={t('AnimeListProviderSettingsLabel')}>
             <LoadingOverlay visible={isAnimeListUpdating} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
-            <TextInput label="Account Name" value={serviceUsername} onChange={(event) => setServiceUsername(event.currentTarget.value)} />
+            <TextInput label={t('AnimeListAccountNameLabel')} value={serviceUsername} onChange={(event) => setServiceUsername(event.currentTarget.value)} />
             <Group mt="xs">
-            <Checkbox value="Completed" label="Completed" checked={completedAnimeAllowed} onChange={(event) => setCompletedAnimeAllowed(event.currentTarget.checked)}/>
-            <Checkbox value="Watching" label="Watching" checked={watchingAnimeAllowed} onChange={(event) => setWatchingAnimeAllowed(event.currentTarget.checked)}/>
-            <Checkbox value="Paused" label="Paused" checked={pausedAnimeAllowed} onChange={(event) => setPausedAnimeAllowed(event.currentTarget.checked)}/>
-            <Checkbox value="Dropped" label="Dropped" checked={droppedAnimeAllowed} onChange={(event) => setDroppedAnimeAllowed(event.currentTarget.checked)}/>
-            <Checkbox value="Planned" label="Planned" checked={plannedAnimeAllowed} onChange={(event) => setPlannedAnimeAllowed(event.currentTarget.checked)}/>
+            <Checkbox value="Completed" label={t('CompletedToggleLabel')} checked={completedAnimeAllowed} onChange={(event) => setCompletedAnimeAllowed(event.currentTarget.checked)}/>
+            <Checkbox value="Watching" label={t('WatchingToggleLabel')} checked={watchingAnimeAllowed} onChange={(event) => setWatchingAnimeAllowed(event.currentTarget.checked)}/>
+            <Checkbox value="Paused" label={t('PausedToggleLabel')} checked={pausedAnimeAllowed} onChange={(event) => setPausedAnimeAllowed(event.currentTarget.checked)}/>
+            <Checkbox value="Dropped" label={t('DroppedToggleLabel')} checked={droppedAnimeAllowed} onChange={(event) => setDroppedAnimeAllowed(event.currentTarget.checked)}/>
+            <Checkbox value="Planned" label={t('PlannedToggleLabel')} checked={plannedAnimeAllowed} onChange={(event) => setPlannedAnimeAllowed(event.currentTarget.checked)}/>
             </Group>
             {(completedAnimeAllowed || watchingAnimeAllowed || pausedAnimeAllowed || droppedAnimeAllowed || plannedAnimeAllowed) == false ? 
                 <Group>
-                    <Text color='red'>Please select at least one anime type.</Text>
+                    <Text color='red'>{t('NoAnimeTypesSelectedWarning')}</Text>
                 </Group> 
               : 
                 <></>}
             <Group justify="flex-end" mt="md">
-            <Button onClick={handleUpdateProviderList}>Update list</Button>
+            <Button onClick={handleUpdateProviderList}>{t('UpdateAnimeListButton')}</Button>
             </Group>
             <Group justify="flex-start" mt="md">
-                {props.animeListUpdateResult.externalServiceUserId == '' ? <></> : <Text color='green'>Anime list updated! New list has {props.animeListUpdateResult.animeCount} animes.</Text>}
+                {props.animeListUpdateResult.externalServiceUserId == '' ? <></> : <Text color='green'>{t('AnimeListUpdateSuccess')} {props.animeListUpdateResult.animeCount}</Text>}
             </Group>
         </Fieldset>
     </Stack>

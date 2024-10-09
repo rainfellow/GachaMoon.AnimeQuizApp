@@ -3,6 +3,8 @@ import { AnimeContext } from "@/context/anime-context";
 import { useAxios } from "./use-axios";
 import { AxiosResponse } from "axios";
 import { AnimeData, AnimeResponse } from "@/models/Anime";
+import { LocalSettingsContext } from "@/context/local-settings-context";
+import { AnimeAutocompleteOptionDisplay } from "@/models/GameplaySettings";
 
 export interface IAnimeBase {
     getAnimeIdFromName: (name: string) => number | undefined
@@ -12,6 +14,7 @@ export interface IAnimeBase {
 
 export const useAnimeBase = (): IAnimeBase => {
     const { animeLoaded, animes, animeNames, animesFlattened, setAnimeLoaded, setAnimeNames, setAnimes, setAnimesFlattened } = useContext(AnimeContext);
+    const { animeAutocompleteSettings } = useContext(LocalSettingsContext);
     const axios = useAxios();
 
     const getAnimeIdFromName = (name: string) => {
@@ -30,7 +33,14 @@ export const useAnimeBase = (): IAnimeBase => {
         if (animeLoaded)
         {
             var result = animes?.find((value) => value.animeId == id);
-            return result?.animeName;
+            if (animeAutocompleteSettings.autocompleteBehaviour == AnimeAutocompleteOptionDisplay.Default)
+            {
+                return result?.animeName;
+            }
+            else
+            {
+                return result?.aliases.find((value) => value.language == animeAutocompleteSettings.autocompleteLanguageCode)?.alias ?? result?.animeName;
+            }
         }
         else
         {

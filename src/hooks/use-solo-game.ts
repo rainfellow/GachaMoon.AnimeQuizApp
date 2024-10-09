@@ -17,7 +17,8 @@ export const useSoloGame = (): ISoloGame => {
     const { events, createGame, setGameSettings, setQuestionAnswered, setReadyForGame } = SoloHubConnector(account == null ? "" : account.token);
     const { isReady, setIsReady, gameState, setGameState,
       questionTimeoutValue, setQuestionTimeoutValue, numberOfQuestionsValue, setNumberOfQuestionsValue,
-      currentQuestion, setCurrentQuestion, currentAnswer, setCurrentAnswer, correctAnswers, setCorrectAnswers, gameConfiguration, setGameConfiguration, setLastAnswerData} = useContext(SoloGameContext);
+      currentQuestion, setCurrentQuestion, currentAnswer, setCurrentAnswer, correctAnswers, setCorrectAnswers, 
+      gameConfiguration, setGameConfiguration, lastAnswerData, setLastAnswerData, gameRecap, setGameRecap} = useContext(SoloGameContext);
     const { animeLoaded, animes } = useContext(AnimeContext);
     const { loadAnimes } = useAnimeBase();
 
@@ -53,7 +54,7 @@ export const useSoloGame = (): ISoloGame => {
     const handleGameStarted = (gameConfiguration: GameConfiguration) => {
         setGameConfiguration(gameConfiguration)
         setCorrectAnswers(0);
-        setGameState(GameState.Starting)
+        setGameState(GameState.Started)
     }
     const handleGameCompleted = (event: GameCompletedEvent) => {
         console.log("game completed event triggered")
@@ -62,6 +63,7 @@ export const useSoloGame = (): ISoloGame => {
         //setCurrentQuestion(defaultQuestion);
         //setCurrentAnswer(defaultAnswer);
         setCorrectAnswers(event.correct);
+        setGameRecap(event.gameRecap);
     }
     events(handleMessageReceived , handleWaitUntilReady, handleAskQuestion, handleConfirmAnswerReceived, handleQuestionResultReceived, handleQuestionTransitionMessage, handleGameStarted, handleGameCompleted );
 
@@ -81,6 +83,7 @@ export const useSoloGame = (): ISoloGame => {
     };
 
     const startSoloGame = async () => {        
+        setGameState(GameState.Starting)
         await setGameSettings({ numberOfQuestions: numberOfQuestionsValue, questionTimeout: questionTimeoutValue })?.catch(() => {
             console.log("error while starting game")
         }).then(() => {
@@ -93,6 +96,10 @@ export const useSoloGame = (): ISoloGame => {
     const answerQuestion = (answer: GameAnswer) => {
         
         setQuestionAnswered(answer);
+        if (answer.choice == undefined || answer.choice == 0)
+        {
+            console.log('used custom answer! ' + answer.customChoice)
+        }
         setGameState(GameState.QuestionAnswered)
     }
 

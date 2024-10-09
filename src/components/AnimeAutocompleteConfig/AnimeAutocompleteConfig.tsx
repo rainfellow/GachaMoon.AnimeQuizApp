@@ -5,6 +5,7 @@ import { CiSettings } from 'react-icons/ci';
 import { LanguagePicker } from '../LanguagePicker/LanguagePicker';
 import { LocalSettingsContext } from '@/context/local-settings-context';
 import { HoverHelper } from '../HoverHelper/HoverHelper';
+import { useTranslation } from 'react-i18next';
 
 export function AnimeAutocompleteConfig() {
     const [opened, setOpened] = useState(false);
@@ -12,6 +13,7 @@ export function AnimeAutocompleteConfig() {
     const [selectedAutocompleteBehaviour, setSelectedAutocompleteBehaviour] = useState(animeAutocompleteSettings.autocompleteBehaviour)
     const [selectedAnimeAutocompleteLanguage, setSelectedAnimeAutocompleteLanguage] = useState(animeAutocompleteSettings.autocompleteLanguageCode)
     const [selectedTextHighlight, setSelectedTextHighlight] = useState(animeAutocompleteSettings.highlightText)
+    const { t } = useTranslation('game');
 
     const handleAutocompleteBehaviourOptionChanged = (value: string) => {
         setSelectedAutocompleteBehaviour(value as AnimeAutocompleteOptionDisplay);
@@ -49,20 +51,25 @@ export function AnimeAutocompleteConfig() {
                 value={selectedAutocompleteBehaviour}
                 onChange={handleAutocompleteBehaviourOptionChanged}
                 name=""
-                description="Configure Autocomplete Behaviour"
+                description={t('ConfigureAutocompleteLabel')}
             >
                 <Stack mt="xs">
                 <Group justify='flex-start'>
-                    <Radio value={AnimeAutocompleteOptionDisplay.Default} label="Default" />
-                    <HoverHelper displayedText="When typing an answer, displayed options will use that anime's default title, provided by MyAnimeList."/>
+                    <Radio value={AnimeAutocompleteOptionDisplay.Default} label={t('AutocompleteBehaviourDefaultLabel')} />
+                    <HoverHelper displayedText={t('AutocompleteBehaviourDefaultTooltip')}/>
                 </Group>
                 <Group justify='flex-start'>
-                    <Radio value={AnimeAutocompleteOptionDisplay.InLanguage} label="Use Set Language" />
-                    <HoverHelper displayedText="When typing an answer, displayed options will always be in the selected language. If no title in that language is present for an anime, the official title will be displayed instead."/>
+                    <Radio value={AnimeAutocompleteOptionDisplay.InLanguage} label={t('AutocompleteBehaviourUseLanguageLabel')} />
+                    <HoverHelper displayedText={t('AutocompleteBehaviourUseLanguageTooltip')}/>
+                </Group>
+                <Group justify='flex-start'>
+                    <Radio value={AnimeAutocompleteOptionDisplay.Closest} label={t('AutocompleteBehaviourClosestMatchLabel')} />
+                    <HoverHelper displayedText={t('AutocompleteBehaviourClosestMatchTooltip')}/>
                 </Group>
                 </Stack>
                 </Radio.Group>
-                { selectedAutocompleteBehaviour == AnimeAutocompleteOptionDisplay.InLanguage && <LanguagePicker selectedCode={animeAutocompleteSettings.autocompleteLanguageCode} onLanguageSelected={handleAnimeDefaultLanguageChange}/> }
+                { (selectedAutocompleteBehaviour == AnimeAutocompleteOptionDisplay.InLanguage || selectedAutocompleteBehaviour == AnimeAutocompleteOptionDisplay.Closest)
+                    && <LanguagePicker selectedCode={animeAutocompleteSettings.autocompleteLanguageCode} onLanguageSelected={handleAnimeDefaultLanguageChange}/> }
             </Stack>
         </Popover.Dropdown>
     </Popover>

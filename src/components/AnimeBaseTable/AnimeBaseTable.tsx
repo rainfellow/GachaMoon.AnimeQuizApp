@@ -15,6 +15,7 @@ import { LuSearch, LuChevronUp, LuChevronDown, LuChevronsUpDown } from 'react-ic
 import classes from './AnimeBaseTable.module.css';
 import { AnimeContext } from '@/context/anime-context';
 import { useAnimeBase } from '@/hooks/use-anime-base';
+import { useTranslation } from 'react-i18next';
 
 interface RowData {
     animeId: number,
@@ -97,7 +98,8 @@ export function AnimeBaseTable() {
   const [sortedData, setSortedData] = useState(data);
   const [sortBy, setSortBy] = useState<keyof RowData | null>(null);
   const [reverseSortDirection, setReverseSortDirection] = useState(false);
-  const tableKeys = { animeId: 0, malId: 0, animeName: ""}
+  const tableKeys = { animeId: 0, malId: 0, animeName: ""}    
+  const { t } = useTranslation('animebase');
 
   const setSorting = (field: keyof RowData) => {
       const reversed = field === sortBy ? !reverseSortDirection : false;
@@ -142,7 +144,7 @@ export function AnimeBaseTable() {
       <LoadingOverlay visible={!animeLoaded} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
       <ScrollArea>
         <TextInput
-          placeholder="Search by any field"
+          placeholder={t('SearchPlaceholder')}
           mb="md"
           leftSection={<LuSearch style={{ width: rem(16), height: rem(16) }} />}
           value={search}
@@ -156,21 +158,21 @@ export function AnimeBaseTable() {
                 reversed={reverseSortDirection}
                 onSort={() => setSorting('animeId')}
               >
-                Anime Base Id
+                {t('AnimeTableColumn1')}
               </Th>
               <Th
                 sorted={sortBy === 'animeName'}
                 reversed={reverseSortDirection}
                 onSort={() => setSorting('animeName')}
               >
-                Anime Title
+                {t('AnimeTableColumn2')}
               </Th>
               <Th
                 sorted={sortBy === 'malId'}
                 reversed={reverseSortDirection}
                 onSort={() => setSorting('malId')}
               >
-                MyAnimeList Anime Id
+                {t('AnimeTableColumn3')}
               </Th>
             </Table.Tr>
           </Table.Tbody>

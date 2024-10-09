@@ -1,0 +1,21 @@
+{
+    "ProfileMenuButton": "Профиль",
+    "AnimeListsMenuMutton": "Список аниме",
+    "AccountNameLabel": "Имя профиля",
+    "UpdateProfileButton": "Обновить",
+    "AnimeListProviderMainLabel": "Выберите используемого поставщика списка аниме",
+    "AnimeListProviderSettingsLabel": "Настройки поставщика списка аниме",
+    "AnimeListAccountNameLabel": "Имя аккаунта",
+    "CompletedToggleLabel": "Просмотрено",
+    "WatchingToggleLabel": "Смотрю",
+    "PausedToggleLabel": "Отложено",
+    "DroppedToggleLabel": "Брошено",
+    "PlannedToggleLabel": "Запланировано",
+    "UpdateAnimeListButton": "Обновить список",
+    "NoAnimeTypesSelectedWarning": "Выберите по крайней мере один тип аниме.",
+    "AnimeListUpdateSuccess": "Список успешно обновлен! Аниме в списке:",
+    "AnimeListProviderNoneDescription": "Список аниме не будет использоваться. В ваших играх может появиться любое аниме.",
+    "ProfileUpdateSuccess": "Настройки профиля успешно обновлены.",
+    "ProfileUpdateError": "Ошибка при обновлении настроек профиля."
+    
+}

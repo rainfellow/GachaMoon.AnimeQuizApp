@@ -1,0 +1,21 @@
+{
+    "ProfileMenuButton": "Profile",
+    "AnimeListsMenuMutton": "Anime Lists",
+    "AccountNameLabel": "Account Name",
+    "UpdateProfileButton": "Update profile",
+    "AnimeListProviderMainLabel": "Choose your anime list provider",
+    "AnimeListProviderSettingsLabel": "Anime List Provider Settings",
+    "AnimeListAccountNameLabel": "Account Name",
+    "CompletedToggleLabel": "Completed",
+    "WatchingToggleLabel": "Watching",
+    "PausedToggleLabel": "Paused",
+    "DroppedToggleLabel": "Dropped",
+    "PlannedToggleLabel": "Planned",
+    "UpdateAnimeListButton": "Update list",
+    "NoAnimeTypesSelectedWarning": "Please select at least one anime type.",
+    "AnimeListUpdateSuccess": "Anime list updated! Anime in new list:",
+    "AnimeListProviderNoneDescription": "No anime list will be used. All anime will be eligible to appear in your games.",
+    "ProfileUpdateSuccess": "Profile settings updated successfully.",
+    "ProfileUpdateError": "Error. Account settings were not updated."
+    
+}

@@ -4,6 +4,7 @@ import { useLocalStorage } from "./use-local-storage";
 
 export interface IAccount {
     token: string;
+    accountId: number;
 }
 
 export interface IAuth {
