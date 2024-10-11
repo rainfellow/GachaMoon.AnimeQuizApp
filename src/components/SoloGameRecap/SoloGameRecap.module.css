@@ -1,5 +1,5 @@
 .wrapper {
-    min-height: rem(600);
+    max-width: rem(600);
     margin-left: auto;
     margin-right: auto;
     display: flex;
@@ -8,4 +8,28 @@
     justify-content: space-around;
     align-content: space-between;
     flex-wrap: nowrap;
+  }
+
+  .recapCorrectAnswerBox {
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .recapStatsPart {
+    align-items: flex-start;
+    justify-content: center;
+    flex-wrap: nowrap;
+  }
+  .carousel {
+    overflow: hidden;
+    display: 'flex';
+    width: calc(50% + 500px);
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  @media (min-width: 2000px) {
+    .carousel {
+      width: 1000px;
+    }
   }

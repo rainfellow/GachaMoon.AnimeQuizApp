@@ -24,6 +24,8 @@ export interface ISoloGameContext {
     setLastAnswerData: (questionResult: QuestionResult) => void;
     gameRecap: GameRecap;
     setGameRecap: (gameRecap: GameRecap) => void;   
+    gameName: string;
+    setGameName: (gameName: string) => void;
 }
 
 export const SoloGameContext = createContext<ISoloGameContext>({
@@ -48,6 +50,8 @@ export const SoloGameContext = createContext<ISoloGameContext>({
     setLastAnswerData: () => { console.log("setting game config") },
     gameRecap: { correctAnswers: [], playerAnswersRecaps: {} },
     setGameRecap: () => { console.log("setting game recap") },
+    gameName: "",
+    setGameName: () => { console.log("setting game name") },
 });
 
 interface SoloGameContextProviderProps {
@@ -61,6 +65,7 @@ export const SoloGameContextProvider: React.FC<SoloGameContextProviderProps> = (
     const defaultQuestion: GameQuestion = { question: "test" };
     const defaultAnswer: GameAnswer = { choice: undefined, customChoice: undefined };
     const [ isReady, setIsReady ] = useState(false);
+    const [ gameName, setGameName ] = useState("");
     const [ gameState, setGameState ] = useState(GameState.None);
     const [ currentQuestion, setCurrentQuestion ] = useState(defaultQuestion);
     const [ currentAnswer, setCurrentAnswer ] = useState(defaultAnswer);
@@ -110,6 +115,10 @@ export const SoloGameContextProvider: React.FC<SoloGameContextProviderProps> = (
         gameRecap,
         setGameRecap: useCallback((gameRecap: GameRecap) => {
             setGameRecap(gameRecap);
+        }, []),
+        gameName,
+        setGameName: useCallback((gameName: string) => {
+            setGameName(gameName);
         }, []),
 
     };

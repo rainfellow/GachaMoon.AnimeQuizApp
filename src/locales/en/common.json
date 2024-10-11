@@ -7,5 +7,13 @@
     "LanguageNameKo": "Korean",
     "LanguageNameTh": "Thai",
     "LanguageNameVi": "Vietnamese",
-    "LanguageNameUk": "Ukrainian"
+    "LanguageNameUk": "Ukrainian",
+    "SecondsShort": "s.",
+    "NotAvailableShort": "n/a",
+    "AgeRatingG": "All Ages",
+    "AgeRatingPG": "PG / Teens",
+    "AgeRatingPG13": "13+",
+    "AgeRatingR": "17+",
+    "AgeRatingRPlus": "Adults only",
+    "AgeRatingRx": "Hentai"
 }

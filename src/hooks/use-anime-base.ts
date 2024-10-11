@@ -9,6 +9,7 @@ import { AnimeAutocompleteOptionDisplay } from "@/models/GameplaySettings";
 export interface IAnimeBase {
     getAnimeIdFromName: (name: string) => number | undefined
     getAnimeNameFromId: (id: number) => string | undefined
+    getAnimeFromId: (id: number) => AnimeData | undefined
     loadAnimes: () => Promise<void>
 }
 
@@ -48,6 +49,18 @@ export const useAnimeBase = (): IAnimeBase => {
         }
     };
 
+    const getAnimeFromId = (id: number) => {
+        if (animeLoaded)
+        {
+            var result = animes?.find((value) => value.animeId == id);
+            return result;
+        }
+        else
+        {
+            console.log("tried to find anime before animes were loaded!")
+        }
+    };
+
     const loadAnimes = () => {
         return axios.get("/Quiz/animes/all")
         .then((res: AxiosResponse<AnimeResponse>) => {
@@ -66,5 +79,5 @@ export const useAnimeBase = (): IAnimeBase => {
         .then(() => { setAnimeLoaded(true); console.log("loaded animes"); });
     }
 
-    return { getAnimeIdFromName, getAnimeNameFromId, loadAnimes };
+    return { getAnimeIdFromName, getAnimeNameFromId, loadAnimes, getAnimeFromId };
 };

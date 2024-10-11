@@ -46,4 +46,5 @@ export interface PlayerAnswerRecap {
     playerAnswer: number;
     isCorrect: boolean;
     timeToAnswer: number;
+    fromEpisode: number;
 }

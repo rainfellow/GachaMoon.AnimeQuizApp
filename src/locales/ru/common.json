@@ -7,5 +7,13 @@
     "LanguageNameKo": "Корейский",
     "LanguageNameTh": "Тайский",
     "LanguageNameVi": "Вьетнамский",
-    "LanguageNameUk": "Украинский"
+    "LanguageNameUk": "Украинский",
+    "SecondsShort": "с.",
+    "NotAvailableShort": "н/д",
+    "AgeRatingG": "Для всех возрастов",
+    "AgeRatingPG": "Для подростков",
+    "AgeRatingPG13": "13+",
+    "AgeRatingR": "17+",
+    "AgeRatingRPlus": "Для взрослых",
+    "AgeRatingRx": "Хентай"
 }

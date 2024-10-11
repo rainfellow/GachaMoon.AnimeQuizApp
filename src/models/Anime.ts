@@ -2,6 +2,11 @@ export interface AnimeData {
     animeId: number,
     malId: number,
     animeName: string,
+    ageRating: string,
+    meanScore: number,
+    releaseDate: string,
+    episodeCount: number,
+    animeType: string,
     aliases: AnimeAliasData[]
 }
 

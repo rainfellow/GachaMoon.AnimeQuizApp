@@ -81,7 +81,7 @@ function getFilteredOptions(data: AnimeData[], searchQuery: string, limit: numbe
 
 export function AnimeAutocomplete(props: { className: string, data: AnimeData[] | undefined, limit: number, value: string | undefined, onChange: (value: string) => void}) {
   const { animeAutocompleteSettings } = useContext(LocalSettingsContext);
-  const defaultFilteredAnime: AnimeFilteredData = {animeData: {aliases: [], animeId: 0, animeName: "", malId: 0}, filteredAnimeString: ""};
+  const defaultFilteredAnime: AnimeFilteredData = {animeData: {aliases: [], animeId: 0, animeName: "", malId: 0, releaseDate: "", meanScore: 0, ageRating: "", animeType: "", episodeCount: 0}, filteredAnimeString: ""};
   const combobox = useCombobox();
   const filteredOptions = getFilteredOptions(props.data != undefined ? props.data : [], props.value ?? '', props.limit, animeAutocompleteSettings);
 

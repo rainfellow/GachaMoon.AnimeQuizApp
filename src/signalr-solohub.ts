@@ -1,5 +1,6 @@
 import * as signalR from "@microsoft/signalr";
 import { GameAnswer, GameCompletedEvent, GameConfiguration, GameQuestion, QuestionResult } from "./models/GameConfiguration";
+import { string } from "prop-types";
 const URL = "https://game.gachamoon.xyz/soloquiz";
 class SoloHubConnector {
     private connection: signalR.HubConnection;
@@ -8,6 +9,7 @@ class SoloHubConnector {
     private isQuestionAnswered: boolean = false;
     private isResolved: boolean = false;
     private answer: GameAnswer = { choice: undefined, customChoice: undefined};
+    private currentGameName: string | undefined = undefined
 
     public events: ((
         onMessageReceived: (message: string) => void,
@@ -88,6 +90,7 @@ class SoloHubConnector {
                     onGameCompleted(event);
                     this.isReadyForGame = false;
                     this.isQuestionAnswered = false;
+                    //this.currentGameName = undefined;
                 });
             };
             this.isConnected = true;
@@ -104,7 +107,10 @@ class SoloHubConnector {
               }
             }, 100);
         });
-        this.connection.invoke("JoinSoloLobby").then(x => console.log("joined game " + x))
+        this.connection.invoke("JoinSoloLobby").then((x: string) => {
+            this.currentGameName = x;
+            console.log("joined game " + x);
+        })
     }
     
     public setGameSettings = (gameConfiguration: GameConfiguration) => {
@@ -119,6 +125,11 @@ class SoloHubConnector {
     {
         this.answer = answer;
         this.isQuestionAnswered = true;
+    }
+
+    public getGameName = () =>
+    {
+        return this.currentGameName;
     }
 
     public static getInstance(authToken: string): SoloHubConnector {

@@ -1,11 +1,11 @@
 import { Group, HoverCard, Text, Badge } from '@mantine/core';
 
-export function HoverHelper(props: { displayedText: string }) {
+export function HoverHelper(props: { displayedText: string, size: string }) {
 
   return (
       <HoverCard width={250} shadow="md" withArrow openDelay={200} closeDelay={200} position='right-start'>
         <HoverCard.Target>
-          <Badge size="xs" circle>
+          <Badge size={props.size} circle>
             ?
           </Badge>
         </HoverCard.Target>

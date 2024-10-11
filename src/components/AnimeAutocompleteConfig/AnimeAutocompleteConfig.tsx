@@ -56,15 +56,15 @@ export function AnimeAutocompleteConfig() {
                 <Stack mt="xs">
                 <Group justify='flex-start'>
                     <Radio value={AnimeAutocompleteOptionDisplay.Default} label={t('AutocompleteBehaviourDefaultLabel')} />
-                    <HoverHelper displayedText={t('AutocompleteBehaviourDefaultTooltip')}/>
+                    <HoverHelper displayedText={t('AutocompleteBehaviourDefaultTooltip')} size='xs'/>
                 </Group>
                 <Group justify='flex-start'>
                     <Radio value={AnimeAutocompleteOptionDisplay.InLanguage} label={t('AutocompleteBehaviourUseLanguageLabel')} />
-                    <HoverHelper displayedText={t('AutocompleteBehaviourUseLanguageTooltip')}/>
+                    <HoverHelper displayedText={t('AutocompleteBehaviourUseLanguageTooltip')} size='xs'/>
                 </Group>
                 <Group justify='flex-start'>
                     <Radio value={AnimeAutocompleteOptionDisplay.Closest} label={t('AutocompleteBehaviourClosestMatchLabel')} />
-                    <HoverHelper displayedText={t('AutocompleteBehaviourClosestMatchTooltip')}/>
+                    <HoverHelper displayedText={t('AutocompleteBehaviourClosestMatchTooltip')} size='xs'/>
                 </Group>
                 </Stack>
                 </Radio.Group>

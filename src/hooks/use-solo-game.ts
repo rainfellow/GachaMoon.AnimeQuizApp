@@ -14,11 +14,11 @@ export interface ISoloGame {
 
 export const useSoloGame = (): ISoloGame => {
     const { account } = useAuth();
-    const { events, createGame, setGameSettings, setQuestionAnswered, setReadyForGame } = SoloHubConnector(account == null ? "" : account.token);
+    const { events, createGame, setGameSettings, setQuestionAnswered, setReadyForGame, getGameName } = SoloHubConnector(account == null ? "" : account.token);
     const { isReady, setIsReady, gameState, setGameState,
       questionTimeoutValue, setQuestionTimeoutValue, numberOfQuestionsValue, setNumberOfQuestionsValue,
       currentQuestion, setCurrentQuestion, currentAnswer, setCurrentAnswer, correctAnswers, setCorrectAnswers, 
-      gameConfiguration, setGameConfiguration, lastAnswerData, setLastAnswerData, gameRecap, setGameRecap} = useContext(SoloGameContext);
+      gameConfiguration, setGameConfiguration, lastAnswerData, setLastAnswerData, gameRecap, setGameRecap, gameName, setGameName } = useContext(SoloGameContext);
     const { animeLoaded, animes } = useContext(AnimeContext);
     const { loadAnimes } = useAnimeBase();
 
@@ -55,6 +55,11 @@ export const useSoloGame = (): ISoloGame => {
         setGameConfiguration(gameConfiguration)
         setCorrectAnswers(0);
         setGameState(GameState.Started)
+        if(getGameName == undefined)
+        {
+            console.log('error. game name was undefined')
+        }
+        setGameName(getGameName() ?? "");
     }
     const handleGameCompleted = (event: GameCompletedEvent) => {
         console.log("game completed event triggered")
