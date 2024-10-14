@@ -41,7 +41,7 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
   const interval = useInterval(() => setQuestionTimer((s: number) => Math.max(s - 1, 0)), 1000);
   const [loading, setLoading] = useState(true);
   
-  const [configPresets, setConfigPresets] = useState<LocalGameSettingsPresets>();
+  const [configPresets, setConfigPresets] = useState<LocalGameSettingsPresets>({presets: new Map<string, GameConfiguration>()});
 
   const [drawerPresetElements, setDrawerPresetElements] = useState<JSX.Element[]>();
 
@@ -102,34 +102,28 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
 
   const createNewPreset = (name: string, gameConfiguration: GameConfiguration) => {
       setConfigPresets((configPresets) => {
-        if (configPresets != undefined)
-        {
-          configPresets.presets.set(name, { 
-            numberOfQuestions: gameConfiguration.numberOfQuestions, 
-            questionTimeout: gameConfiguration.questionTimeout, 
-            diversifyAnime: gameConfiguration.diversifyAnime, 
-            minRating: gameConfiguration.minRating,
-            maxRating: gameConfiguration.maxRating,
-            minReleaseYear: gameConfiguration.minReleaseYear,
-            maxReleaseYear: gameConfiguration.maxReleaseYear
-          });
-          setItem('config-presets', superjson.stringify(configPresets));
-          updateDrawerData(configPresets);
-          return configPresets;
-        }
+        configPresets.presets.set(name, { 
+          numberOfQuestions: gameConfiguration.numberOfQuestions, 
+          questionTimeout: gameConfiguration.questionTimeout, 
+          diversifyAnime: gameConfiguration.diversifyAnime, 
+          minRating: gameConfiguration.minRating,
+          maxRating: gameConfiguration.maxRating,
+          minReleaseYear: gameConfiguration.minReleaseYear,
+          maxReleaseYear: gameConfiguration.maxReleaseYear
+        });
+        setItem('config-presets', superjson.stringify(configPresets));
+        updateDrawerData(configPresets);
+        return configPresets;
       })
   }
 
   const deletePreset = (name: string)  => {    
     setConfigPresets((configPresets) => {
-      if (configPresets != undefined)
-      {
         configPresets.presets.delete(name);
         setItem('config-presets', superjson.stringify(configPresets));
         updateDrawerData(configPresets);
         console.log('preset deleted')
         return configPresets;
-      }
     })
   }
 
@@ -183,19 +177,19 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
     let configs = getItem('config-presets');
     if (configs != undefined)
     {
-      let configPresets: LocalGameSettingsPresets = superjson.parse(configs);
-      setConfigPresets(configPresets);
-      updateDrawerData(configPresets);
+      let loadedConfigPresets: LocalGameSettingsPresets = superjson.parse(configs);
+      setConfigPresets((configPresets) => {
+        configPresets.presets = loadedConfigPresets.presets;
+        return configPresets;
+      });
+      updateDrawerData(loadedConfigPresets);
     }
     else
     {
-      setConfigPresets(() => {
-        let presets: LocalGameSettingsPresets = {
-          presets: new Map<string, GameConfiguration>()
-        };
-        presets.presets.set('default', { questionTimeout: 20, numberOfQuestions: 10, diversifyAnime: false, minRating: 0, maxRating: 10, minReleaseYear: 1970, maxReleaseYear: 2025})
-        updateDrawerData(presets);
-        return presets;
+      setConfigPresets((configPresets) => {
+        configPresets.presets.set('default', { questionTimeout: 20, numberOfQuestions: 10, diversifyAnime: false, minRating: 0, maxRating: 10, minReleaseYear: 1970, maxReleaseYear: 2025})
+        updateDrawerData(configPresets);
+        return configPresets;
       });
     }
   }, [])
