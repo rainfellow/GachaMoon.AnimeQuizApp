@@ -15,5 +15,7 @@
     "AgeRatingPG13": "13+",
     "AgeRatingR": "17+",
     "AgeRatingRPlus": "Adults only",
-    "AgeRatingRx": "Hentai"
+    "AgeRatingRx": "Hentai",
+    "SelectLanguageTitle": "Select language",
+    "EnterTitleTitle": "Enter title"
 }

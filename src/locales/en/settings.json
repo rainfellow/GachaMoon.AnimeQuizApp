@@ -16,6 +16,8 @@
     "AnimeListUpdateSuccess": "Anime list updated! Anime in new list:",
     "AnimeListProviderNoneDescription": "No anime list will be used. All anime will be eligible to appear in your games.",
     "ProfileUpdateSuccess": "Profile settings updated successfully.",
-    "ProfileUpdateError": "Error. Account settings were not updated."
+    "ProfileUpdateError": "Error. Account settings were not updated.",
+    "AnimeListUpdateError": "Error.",
+    "AnimeListUpdateErrorDescription": "Error while loading your anime list. Please check that the username is correct."
     
 }

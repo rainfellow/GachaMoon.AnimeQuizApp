@@ -1,7 +1,7 @@
 import { ReactElement, useContext, useEffect, useState } from 'react';
-import { AspectRatio, Button, Container, Flex, Image, Loader, Paper, Slider, Text, Stack, rem, Fieldset, Group, Badge, Card } from '@mantine/core';
+import { AspectRatio, Button, Container, Flex, Image, Loader, Paper, Slider, Text, Stack, rem, Fieldset, Group, Badge, Card, Checkbox, RangeSlider, Drawer, ScrollArea, ActionIcon } from '@mantine/core';
 import { AnimeContext } from '@/context/anime-context';
-import { GameState, QuestionResult } from '@/models/GameConfiguration';
+import { GameConfiguration, GameState, QuestionResult } from '@/models/GameConfiguration';
 import { SoloGameContext } from '../../context/solo-game-context';
 import { useSoloGame } from '../../hooks/use-solo-game';
 import { useAnimeBase } from '@/hooks/use-anime-base';
@@ -11,41 +11,78 @@ import { AnimeAutocompleteConfig } from '@/components/AnimeAutocompleteConfig/An
 import { useTranslation } from 'react-i18next';
 import { SoloGameRecap } from '@/components/SoloGameRecap/SoloGameRecap';
 import { useNavigate } from 'react-router-dom';
-import { CiCircleCheck, CiCircleRemove, CiTimer, CiStar, CiCalendarDate, CiSquareQuestion, CiSquareCheck} from 'react-icons/ci';
-import { useInterval } from '@mantine/hooks';
+import { CiCircleCheck, CiCircleRemove, CiSquareCheck, CiTrash, CiFileOn} from 'react-icons/ci';
+import { useDisclosure, useInterval } from '@mantine/hooks';
+import { useLocalStorage } from '@/hooks/use-local-storage';
+import { LocalGameSettingsPresets } from '@/models/GameplaySettings';
+import { SavePresetModal } from '@/components/SavePresetModal/SavePresetModal';
+import superjson from 'superjson';
 
 export const SoloLobbyView: React.FC = (): ReactElement => {
   const { t } = useTranslation('game');
   const { isReady, setIsReady, gameState, gameConfiguration,
-    questionTimeoutValue, setQuestionTimeoutValue, numberOfQuestionsValue, setNumberOfQuestionsValue,
-    currentQuestion, setCurrentQuestion, currentAnswer, setCurrentAnswer, correctAnswers, setCorrectAnswers, lastAnswerData, gameRecap } = useContext(SoloGameContext);
+    currentQuestion, setCurrentQuestion, currentAnswer, setCurrentAnswer, correctAnswers, setCorrectAnswers, lastAnswerData, 
+    setQuestionNumber, setQuestionTimeout, setDiversifyAnime, setAnimeAllowedRating, setAnimeAllowedYears } = useContext(SoloGameContext);
+
+  
+  const [opened, { open, close }] = useDisclosure(false);
+
+  const [modalOpened, modalHandlers] = useDisclosure(false);
   
   const { startSoloLobby, startSoloGame, answerQuestion } = useSoloGame();
-  const navigate = useNavigate()
 
-  const { animeLoaded, animeNames, animes } = useContext(AnimeContext);
+  const { animeLoaded, animes } = useContext(AnimeContext);
+
+  const { getItem, setItem } = useLocalStorage();
 
   const { getAnimeIdFromName , getAnimeNameFromId } = useAnimeBase();
 
-  const [questionTimer, setQuestionTimer] = useState(questionTimeoutValue);
-  const interval = useInterval(() => setQuestionTimer((s) => Math.max(s - 1, 0)), 1000);
+  const [questionTimer, setQuestionTimer] = useState(gameConfiguration.questionTimeout);
+  const interval = useInterval(() => setQuestionTimer((s: number) => Math.max(s - 1, 0)), 1000);
   const [loading, setLoading] = useState(true);
+  
+  const [configPresets, setConfigPresets] = useState<LocalGameSettingsPresets>();
+
+  const [drawerPresetElements, setDrawerPresetElements] = useState<JSX.Element[]>();
+
+  //basic settings
+  const [questionNumberValue, setQuestionNumberValue] = useState(gameConfiguration.numberOfQuestions);
+  const [questionTimeoutValue, setQuestionTimeoutValue] = useState(gameConfiguration.questionTimeout);
+
+  //anime filters
+  const [animeYearsRangeValues, setAnimeYearsRangeValues] = useState<[number, number]>([gameConfiguration.minReleaseYear, gameConfiguration.maxReleaseYear]);
+  const [animeRatingsRangeValues, setAnimeRatingsRangeValues] = useState<[number, number]>([gameConfiguration.minRating, gameConfiguration.maxRating]);
+
+  //experimental
+  const [diversifyAnimeValue, setDiversifyAnimeValue] = useState(false);
 
   const handleTimeRangeChange = (value: number) => {
-
     setQuestionTimeoutValue(value);
-  
+    setQuestionTimeout(value);
   };
 
   const handleQuestionNumberRangeChange = (value: number) => {
-
-    setNumberOfQuestionsValue(value);
-  
+    setQuestionNumberValue(value);
+    setQuestionNumber(value);
   };
-  const handleAnswerChange = (newAnswer: string) => {
 
+  const handleAllowedYearsRangeChange = (value: [number, number]) => {
+    setAnimeYearsRangeValues(value);
+    setAnimeAllowedYears(value[0], value[1]);
+  };
+
+  const handleAllowedRatingRangeChange = (value: [number, number]) => {
+    setAnimeRatingsRangeValues(value);
+    setAnimeAllowedRating(value[0], value[1]);
+  };
+
+  const handleDiversifyChange = (value: boolean) => {
+    setDiversifyAnimeValue(value);
+    setDiversifyAnime(value);
+  };
+
+  const handleAnswerChange = (newAnswer: string) => {
     setCurrentAnswer({ choice: undefined, customChoice: newAnswer });
-  
   };
   const handleConfirmAnswer = () => {
     let finalChoice: number | undefined;
@@ -63,18 +100,110 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
     
   };
 
+  const createNewPreset = (name: string, gameConfiguration: GameConfiguration) => {
+      setConfigPresets((configPresets) => {
+        if (configPresets != undefined)
+        {
+          configPresets.presets.set(name, { 
+            numberOfQuestions: gameConfiguration.numberOfQuestions, 
+            questionTimeout: gameConfiguration.questionTimeout, 
+            diversifyAnime: gameConfiguration.diversifyAnime, 
+            minRating: gameConfiguration.minRating,
+            maxRating: gameConfiguration.maxRating,
+            minReleaseYear: gameConfiguration.minReleaseYear,
+            maxReleaseYear: gameConfiguration.maxReleaseYear
+          });
+          setItem('config-presets', superjson.stringify(configPresets));
+          updateDrawerData(configPresets);
+          return configPresets;
+        }
+      })
+  }
+
+  const deletePreset = (name: string)  => {    
+    setConfigPresets((configPresets) => {
+      if (configPresets != undefined)
+      {
+        configPresets.presets.delete(name);
+        setItem('config-presets', superjson.stringify(configPresets));
+        updateDrawerData(configPresets);
+        console.log('preset deleted')
+        return configPresets;
+      }
+    })
+  }
+
+  const loadPreset = (name: string) => {
+    if (configPresets != undefined)
+    {
+      let preset = configPresets.presets.get(name);
+      if (preset != undefined)
+      {
+        handleTimeRangeChange(preset.questionTimeout);
+        handleAllowedRatingRangeChange([preset.minRating, preset.maxRating]);
+        handleAllowedYearsRangeChange([preset.minReleaseYear, preset.maxReleaseYear]);
+        handleDiversifyChange(preset.diversifyAnime);
+        handleQuestionNumberRangeChange(preset.numberOfQuestions);
+        close();
+      }
+      else
+      {
+        console.log('preset load error!')
+      }
+    }
+  }
+
+  const updateDrawerData = (configPresets: LocalGameSettingsPresets) => {
+    const data = configPresets.presets.keys().map((k) => 
+    <Group justify='space-between' key={k}>
+      <Group justify='flex-start'>
+        <Text>
+          {k}
+        </Text>
+      </Group>
+      <Group justify='flex-end'>
+        <ActionIcon id={k+"_load_button"} variant="filled" aria-label="Load" onClick={() => loadPreset(k)}>
+          <CiFileOn/>
+        </ActionIcon>
+        <ActionIcon id={k+"_delete_button"} variant="filled" color="red" aria-label="Delete" onClick={() => deletePreset(k)}>
+          <CiTrash/>
+        </ActionIcon>
+      </Group>
+    </Group>
+      )
+    setDrawerPresetElements(data.toArray());
+  } 
+
   const isInLobbyScreen = () => {
     return (gameState == (GameState.Lobby || GameState.Starting || GameState.Finished))
   }
 
   useEffect(() => {
     startSoloLobby()
+    let configs = getItem('config-presets');
+    if (configs != undefined)
+    {
+      let configPresets: LocalGameSettingsPresets = superjson.parse(configs);
+      setConfigPresets(configPresets);
+      updateDrawerData(configPresets);
+    }
+    else
+    {
+      setConfigPresets(() => {
+        let presets: LocalGameSettingsPresets = {
+          presets: new Map<string, GameConfiguration>()
+        };
+        presets.presets.set('default', { questionTimeout: 20, numberOfQuestions: 10, diversifyAnime: false, minRating: 0, maxRating: 10, minReleaseYear: 1970, maxReleaseYear: 2025})
+        updateDrawerData(presets);
+        return presets;
+      });
+    }
   }, [])
 
   useEffect(() => {
     if (gameState == GameState.QuestionReceived)
     {
-      setQuestionTimer(questionTimeoutValue);
+      setQuestionTimer(gameConfiguration.questionTimeout);
       interval.start();
     }
     else
@@ -124,6 +253,13 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
     return (
       <>
       <Paper>
+        <SavePresetModal preset={gameConfiguration} onSave={createNewPreset} opened={modalOpened} close={modalHandlers.close}/>
+        <Drawer offset={8} radius="md" opened={opened} onClose={close} title={t('game:PresetsDrawerTitle')} scrollAreaComponent={ScrollArea.Autosize}>
+          <Stack justify='flex-start'>
+            <Text c='dimmed' size='xs'>{t('game:PresetsDrawerDescription')}</Text>
+              {configPresets != undefined && drawerPresetElements}
+          </Stack>
+        </Drawer>
         <Flex
           mih={50}
           gap="md"
@@ -132,17 +268,36 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
           direction="column"
           wrap="wrap"
         >
-          <Container fluid className={classes.settingsWrapper}>
-            <Group miw="150" justify='center'>
-              <Fieldset legend={t('BasicSettingsLabel')}>
+          <Container fluid>
+            <Group align="flex-start" justify='center'>
+              <Fieldset legend={t('BasicSettingsLabel')} className={classes.settingsFieldset}>
                 <Text size="sm">{t('TimePerQuestionLabel')}</Text>
                 <Slider value={questionTimeoutValue} onChangeEnd={handleTimeRangeChange} label={(value) => `${value} sec`} min={15} max={35} marks={[{ value: 15 }, { value: 25 }, { value: 35 }]} />
                 <Text size="sm">{t('NumberOfQuestionsLabel')}</Text>
-                <Slider value={numberOfQuestionsValue} onChangeEnd={handleQuestionNumberRangeChange} label={(value) => `${value}`} min={5} max={30} marks={[{ value: 5 }, { value: 20 }, { value: 30 }]} />
+                <Slider value={questionNumberValue} onChangeEnd={handleQuestionNumberRangeChange} label={(value) => `${value}`} min={5} max={30} marks={[{ value: 5 }, { value: 20 }, { value: 30 }]} />
+              </Fieldset>
+              <Fieldset legend={t('FilteringSettingsLabel')} className={classes.settingsFieldset}>
+                <Text size="sm">{t('AnimeYearsRangeLabel')}</Text>
+                <RangeSlider value={animeYearsRangeValues} onChange={handleAllowedYearsRangeChange} min={1970} max={2025} minRange={1}/>
+                <Text size="sm">{t('AnimeRatingsRangeLabel')}</Text>
+                <RangeSlider value={animeRatingsRangeValues} onChange={handleAllowedRatingRangeChange} min={0} max={10} minRange={1}/>
+              </Fieldset>
+              <Fieldset legend={t('ExperimentalSettingsLabel')} className={classes.settingsFieldset}>
+              <Checkbox
+                label={t('AnimeDiversifyLabel')}
+                checked={diversifyAnimeValue}
+                onChange={(event) => handleDiversifyChange(event.currentTarget.checked)}
+              />
               </Fieldset>
             </Group>
-            <Group justify="flex-end" mt="md">
-            <Button loading={gameState == GameState.Starting} loaderProps={{ type: 'dots' }}onClick={startSoloGame}>{t('StartGameButton')}</Button>
+            <Group justify='space-between'>
+              <Group justify="flex-start" mt="md">
+              <Button disabled={gameState == GameState.Starting} onClick={open}>{t('ManagePresetsButton')}</Button>
+              <Button disabled={gameState == GameState.Starting} onClick={modalHandlers.open}>{t('SavePresetButton')}</Button>
+              </Group>
+              <Group justify="flex-end" mt="md">
+              <Button loading={gameState == GameState.Starting} loaderProps={{ type: 'dots' }} onClick={startSoloGame}>{t('StartGameButton')}</Button>
+              </Group>
             </Group>
           </Container>
         </Flex>
@@ -210,8 +365,8 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
                     <AnimeAutocompleteConfig/>
             </Group>
             <Group justify='center'>
-              <Button size="md" maw={200} onClick={handleConfirmAnswer}>
-                  Send Answer
+              <Button size="md" maw={200} disabled={gameState != GameState.QuestionReceived} loading={gameState == GameState.QuestionAnswered} onClick={handleConfirmAnswer}>
+                  {t('SendAnswerButton')}
               </Button>
             </Group>
           </>
@@ -223,7 +378,7 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
 
   function loadingScreen() {
     return(
-      <div className={classes.imageBox}>
+      <div className={classes.centerAligned}>
         <Loader />
       </div>
     )

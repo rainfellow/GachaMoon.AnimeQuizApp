@@ -5,6 +5,7 @@ import SoloHubConnector from '../signalr-solohub'
 import { GameAnswer, GameCompletedEvent, GameConfiguration, GameQuestion, GameState, QuestionResult } from "../models/GameConfiguration";
 import { AnimeContext } from "@/context/anime-context";
 import { useAnimeBase } from "./use-anime-base";
+import { config } from "chai";
 
 export interface ISoloGame {
     startSoloLobby: () => Promise<void>;
@@ -16,9 +17,9 @@ export const useSoloGame = (): ISoloGame => {
     const { account } = useAuth();
     const { events, createGame, setGameSettings, setQuestionAnswered, setReadyForGame, getGameName } = SoloHubConnector(account == null ? "" : account.token);
     const { isReady, setIsReady, gameState, setGameState,
-      questionTimeoutValue, setQuestionTimeoutValue, numberOfQuestionsValue, setNumberOfQuestionsValue,
       currentQuestion, setCurrentQuestion, currentAnswer, setCurrentAnswer, correctAnswers, setCorrectAnswers, 
-      gameConfiguration, setGameConfiguration, lastAnswerData, setLastAnswerData, gameRecap, setGameRecap, gameName, setGameName } = useContext(SoloGameContext);
+      gameConfiguration, setGameConfiguration, lastAnswerData, setLastAnswerData, gameRecap, setGameRecap, gameName, setGameName, 
+      setQuestionNumber, setQuestionTimeout, setDiversifyAnime, setAnimeAllowedYears, setAnimeAllowedRating } = useContext(SoloGameContext);
     const { animeLoaded, animes } = useContext(AnimeContext);
     const { loadAnimes } = useAnimeBase();
 
@@ -89,7 +90,7 @@ export const useSoloGame = (): ISoloGame => {
 
     const startSoloGame = async () => {        
         setGameState(GameState.Starting)
-        await setGameSettings({ numberOfQuestions: numberOfQuestionsValue, questionTimeout: questionTimeoutValue })?.catch(() => {
+        await setGameSettings(gameConfiguration)?.catch(() => {
             console.log("error while starting game")
         }).then(() => {
             console.log("game settings set, starting...")

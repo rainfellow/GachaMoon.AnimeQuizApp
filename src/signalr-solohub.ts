@@ -1,15 +1,15 @@
 import * as signalR from "@microsoft/signalr";
 import { GameAnswer, GameCompletedEvent, GameConfiguration, GameQuestion, QuestionResult } from "./models/GameConfiguration";
-import { string } from "prop-types";
 const URL = "https://game.gachamoon.xyz/soloquiz";
 class SoloHubConnector {
     private connection: signalR.HubConnection;
     private isConnected: boolean = false;
     private isReadyForGame: boolean = false;
     private isQuestionAnswered: boolean = false;
-    private isResolved: boolean = false;
     private answer: GameAnswer = { choice: undefined, customChoice: undefined};
     private currentGameName: string | undefined = undefined
+    private answerWaitingInterval: NodeJS.Timeout | undefined = undefined;
+    private lobbyWaitingInterval: NodeJS.Timeout | undefined = undefined;
 
     public events: ((
         onMessageReceived: (message: string) => void,
@@ -62,9 +62,8 @@ class SoloHubConnector {
                 this.connection.on("AskQuestion", async (question: GameQuestion) => {
                     onAskQuestion(question);
                     let promise = new Promise<GameAnswer>((resolve, reject) => {
-                        const intervalId = setInterval(() => {
+                        this.answerWaitingInterval = setInterval(() => {
                         if (this.isQuestionAnswered) {
-                            clearInterval(intervalId);
                             this.isQuestionAnswered = false;
                             resolve(this.answer);
                         }
@@ -73,6 +72,7 @@ class SoloHubConnector {
                     return promise;
                 });
                 this.connection.on("ConfirmAnswerReceived", () => {
+                    clearInterval(this.answerWaitingInterval);
                     onConfirmAnswerReceived();
                 });
                 this.connection.on("SendQuestionResult", (questionResult: QuestionResult) => {

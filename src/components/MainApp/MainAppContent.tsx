@@ -3,13 +3,15 @@ import { Outlet } from 'react-router-dom'
 // routes config
 import { Loader } from '@mantine/core';
 import { AnimeContextProvider } from '@/context/anime-context';
+import { Notifications } from '@mantine/notifications';
 
 const AppContent = () => {
 
   return (
     <div>
       <Suspense fallback={<Loader color="primary" />}>
-      <AnimeContextProvider>
+        <AnimeContextProvider>
+          <Notifications />
           <Outlet/>
         </AnimeContextProvider>
       </Suspense>

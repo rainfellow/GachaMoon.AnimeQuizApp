@@ -3,6 +3,7 @@ import { CloseButton, Combobox, TextInput, useCombobox } from '@mantine/core';
 import { AnimeData } from '@/models/Anime';
 import { LocalSettingsContext } from '@/context/local-settings-context';
 import { AnimeAutocompleteOptionDisplay, AnimeAutocompleteSettings } from '@/models/GameplaySettings';
+import { useTranslation } from 'react-i18next';
 
 interface AnimeFilteredData {
     animeData: AnimeData,
@@ -84,6 +85,7 @@ export function AnimeAutocomplete(props: { className: string, data: AnimeData[] 
   const defaultFilteredAnime: AnimeFilteredData = {animeData: {aliases: [], animeId: 0, animeName: "", malId: 0, releaseDate: "", meanScore: 0, ageRating: "", animeType: "", episodeCount: 0}, filteredAnimeString: ""};
   const combobox = useCombobox();
   const filteredOptions = getFilteredOptions(props.data != undefined ? props.data : [], props.value ?? '', props.limit, animeAutocompleteSettings);
+  const { t } = useTranslation('game');
 
   const options = filteredOptions.map((item) => (
     <Combobox.Option value={item.filteredAnimeString} key={item.animeData.animeId}>
@@ -103,6 +105,7 @@ export function AnimeAutocomplete(props: { className: string, data: AnimeData[] 
     >
       <Combobox.Target>
         <TextInput
+          id='anime_input_1'
           value={props.value ?? ''}
           onChange={(event) => {
             event.preventDefault();
@@ -127,7 +130,7 @@ export function AnimeAutocomplete(props: { className: string, data: AnimeData[] 
 
       <Combobox.Dropdown>
         <Combobox.Options>
-          {options.length === 0 ? <Combobox.Empty>Nothing found</Combobox.Empty> : options}
+          {options.length === 0 ? <Combobox.Empty>{t('AnimeAutocompleteEmptyLabel')}</Combobox.Empty> : options}
         </Combobox.Options>
       </Combobox.Dropdown>
     </Combobox>

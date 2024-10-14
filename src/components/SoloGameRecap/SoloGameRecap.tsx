@@ -1,5 +1,5 @@
 import { SoloGameContext } from '@/context/solo-game-context';
-import { Group, rem, Image, Text, Stack, AspectRatio, NumberFormatter, Divider, Grid, Rating, Tooltip, Card, Space, Button, Radio, SegmentedControl, Badge } from '@mantine/core';
+import { Group, rem, Image, Text, Stack, AspectRatio, NumberFormatter, Divider, Grid, Rating, Tooltip, Card, Space, Button, Radio, SegmentedControl, Badge, UnstyledButton } from '@mantine/core';
 import { Carousel } from '@mantine/carousel';
 import { useContext, useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
@@ -16,6 +16,8 @@ import { useNavigate } from 'react-router-dom';
 import { HoverHelper } from '../HoverHelper/HoverHelper';
 import { getAgeRatingTitle } from '@/utils/translation-utils';
 import { useAxios } from '@/hooks/use-axios';
+import { useDisclosure } from '@mantine/hooks';
+import { ReportAnimeBugModal } from '../ReportAnimeBugModal/ReportAnimeBugModal';
 
 export function SoloGameRecap() {
   const { gameRecap, correctAnswers, gameState, gameName } = useContext(SoloGameContext);
@@ -23,10 +25,12 @@ export function SoloGameRecap() {
   const { account } = useAuth()
   const axios = useAxios();
   const { getAnimeNameFromId, getAnimeFromId } = useAnimeBase();
-  const [selectedAnime, setSelectedAnime] = useState({animeId: 0, malId:0, animeName: "", ageRating: "", meanScore: 0, releaseDate: "", episodeCount: 0, animeType: ""})
+  const [selectedAnime, setSelectedAnime] = useState({animeId: 0, malId:0, animeName: "", ageRating: "", meanScore: 0, releaseDate: "", episodeCount: 0, animeType: "", aliases: [{animeId: 0, aliasId: 0, language: "", alias: ""}]})
   const [answersRecap, setAnswersRecap] = useState([{playerAnswer: 0, isCorrect: false, timeToAnswer: 0, fromEpisode: 0}]);
   const [correctAnswersList, setCorrectAnswersList] = useState([{answer: 0, question: ""}]);
   const [feedbackOptions, setFeedbackOptions] = useState([{difficultyFeedback: 0, playabilityFeedback: 0}]);
+
+  const [bugModalOpened, { open, close }] = useDisclosure(false);
 
   
   const [difficultyFeedbackValue, setDifficultyFeedbackValue] = useState("0");
@@ -111,7 +115,8 @@ export function SoloGameRecap() {
     setSlideIndex(slideNumber);
     setDifficultyFeedbackValue(feedbackOptions[slideNumber].difficultyFeedback.toString());
     setPlayabilityFeedbackValue(feedbackOptions[slideNumber].playabilityFeedback.toString());
-    setSelectedAnime(getAnimeFromId(correctAnswersList[slideNumber].answer) ?? {animeId: 0, malId:0, animeName: "", ageRating: "", meanScore: 0, releaseDate: "", episodeCount: 0, animeType: ""});
+    setSelectedAnime(getAnimeFromId(correctAnswersList[slideNumber].answer) ?? 
+      {animeId: 0, malId:0, animeName: "", ageRating: "", meanScore: 0, releaseDate: "", episodeCount: 0, animeType: "", aliases: [{animeId: 0, aliasId: 0, language: "", alias: ""}]});
   }
 
   useEffect(() => {
@@ -119,7 +124,8 @@ export function SoloGameRecap() {
     {
       console.log(account?.accountId);
       setAnswersRecap(gameRecap.playerAnswersRecaps[(account?.accountId ?? 0)]);
-      setSelectedAnime(getAnimeFromId(gameRecap.correctAnswers[0].answer) ?? {animeId: 0, malId:0, animeName: "", ageRating: "", meanScore: 0, releaseDate: "", episodeCount: 0, animeType: ""});
+      setSelectedAnime(getAnimeFromId(gameRecap.correctAnswers[0].answer) ?? 
+        {animeId: 0, malId:0, animeName: "", ageRating: "", meanScore: 0, releaseDate: "", episodeCount: 0, animeType: "", aliases: [{animeId: 0, aliasId: 0, language: "", alias: ""}]});
       setCorrectAnswersList(gameRecap.correctAnswers);
       setFeedbackOptions([...Array(gameRecap.correctAnswers.length)].fill({difficultyFeedback: 0, playabilityFeedback: 0}));
       setDifficultyFeedbackValue("0");
@@ -134,7 +140,10 @@ export function SoloGameRecap() {
 
   return (
   <>
+    
     {gameRecap != undefined &&
+    <>
+    <ReportAnimeBugModal anime={selectedAnime} opened={bugModalOpened} onClose={() => {}} close={close}/>
     <Group justify="center" mt="xl">
       <Stack justify='center'>
         <Group justify='center'>
@@ -261,6 +270,9 @@ export function SoloGameRecap() {
                 </Card>
             </Grid.Col>
           </Grid>
+          <Group justify='flex-end'>
+            <UnstyledButton size='xs' onClick={() => open()}><Text color='red'>{t('game:ReportAnimeBugLabel')}</Text></UnstyledButton>
+          </Group>
           <Divider my="xs" labelPosition="center" /> 
           <Group justify='center'>
             <Button onClick={handleFinishButtonClick}>{t('game:FinishRecapButton')}</Button>
@@ -268,6 +280,7 @@ export function SoloGameRecap() {
         </Stack>
       </Stack>
     </Group>
+    </>
     }
   </>
   );

@@ -1,3 +1,5 @@
+import { GameConfiguration } from "./GameConfiguration";
+
 export interface AnimeAutocompleteSettings {
     highlightText: boolean;
     autocompleteBehaviour: AnimeAutocompleteOptionDisplay;
@@ -9,3 +11,13 @@ export enum AnimeAutocompleteOptionDisplay {
     InLanguage = "UseLang",
     Closest = "Closest"
 }
+
+export interface LocalGameSettingsPresets {
+    presets: Map<string, GameConfiguration>;
+}
+
+export class JSONAbleMap extends Map {
+    toJSON() {
+      return [...this.entries()]
+    }
+  }

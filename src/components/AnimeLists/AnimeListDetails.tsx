@@ -3,6 +3,7 @@ import { Button, Checkbox, Fieldset, Group, Loader, LoadingOverlay, SegmentedCon
 import { useAxios } from '@/hooks/use-axios';
 import { AxiosResponse } from 'axios';
 import { AnimeListUpdateResponse } from '@/models/AnimeLists';
+import { notifications } from '@mantine/notifications';
 import { useTranslation } from 'react-i18next';
 
 const AnimeListDetails = (props: { provider: string; animeListUser: string | null; setAnimeListUpdateResult: (arg0: AnimeListUpdateResponse) => void; animeListUpdateResult: AnimeListUpdateResponse; selectedAnimeGroups: any[] | null}) => {
@@ -43,7 +44,23 @@ const AnimeListDetails = (props: { provider: string; animeListUser: string | nul
         axios
             .post('Account/connectservice', {serviceType: "AnimeList", serviceProvider: props.provider, externalServiceUserId: serviceUsername, allowedListGroups: allowedListGroups})
             .then((response:AxiosResponse) => {
-                props.setAnimeListUpdateResult(response.data)
+                if (response.status == 200)
+                    props.setAnimeListUpdateResult(response.data)
+            })
+            .catch((error) => {            
+                console.log(error);        
+                notifications.show({
+                    id: 'anime-list-error',
+                    position: 'top-center',
+                    withCloseButton: true,
+                    autoClose: 4000,
+                    title: t('AnimeListUpdateError'),
+                    message: t('AnimeListUpdateErrorDescription'),
+                    color: 'red',
+                    loading: false,
+              });
+            })
+            .finally(() => {
                 setIsAnimeListUpdating(false)
             });
     }
@@ -69,7 +86,11 @@ const AnimeListDetails = (props: { provider: string; animeListUser: string | nul
               : 
                 <></>}
             <Group justify="flex-end" mt="md">
-            <Button onClick={handleUpdateProviderList}>{t('UpdateAnimeListButton')}</Button>
+            <Button 
+                disabled={((completedAnimeAllowed || watchingAnimeAllowed || pausedAnimeAllowed || droppedAnimeAllowed || plannedAnimeAllowed) == false)} 
+                onClick={handleUpdateProviderList}>
+                {t('UpdateAnimeListButton')}
+            </Button>
             </Group>
             <Group justify="flex-start" mt="md">
                 {props.animeListUpdateResult.externalServiceUserId == '' ? <></> : <Text color='green'>{t('AnimeListUpdateSuccess')} {props.animeListUpdateResult.animeCount}</Text>}

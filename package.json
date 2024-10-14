@@ -25,18 +25,21 @@
     "@mantine/core": "^7.13.2",
     "@mantine/form": "^7.13.1",
     "@mantine/hooks": "^7.13.0",
+    "@mantine/notifications": "^7.13.2",
     "@microsoft/signalr": "^8.0.7",
     "axios": "^1.7.7",
     "clsx": "^2.1.1",
     "embla-carousel-react": "^7.1.0",
     "i18next": "^23.15.2",
     "i18next-resources-to-backend": "^1.2.1",
+    "mapify-ts": "^0.0.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-flagkit": "^2.0.4",
     "react-i18next": "^15.0.2",
     "react-icons": "^5.3.0",
-    "react-router-dom": "^6.26.1"
+    "react-router-dom": "^6.26.1",
+    "superjson": "^2.2.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.10.0",

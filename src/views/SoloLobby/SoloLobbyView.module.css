@@ -19,12 +19,6 @@
   visibility: hidden;
 }
 
-  .settingsWrapper {
-    max-width: rem(300);
-    align-self:flex-start;
-    align-items: flex-start;
-  }
-
 .answerComponent {
     max-width: rem(800);
     min-width: rem(30%);
@@ -54,4 +48,14 @@
     margin-left: auto;
     margin-right: auto;
 
+}
+
+.centerAligned {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settingsFieldset {
+  min-width: 250px;
 }

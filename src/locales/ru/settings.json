@@ -16,6 +16,8 @@
     "AnimeListUpdateSuccess": "Список успешно обновлен! Аниме в списке:",
     "AnimeListProviderNoneDescription": "Список аниме не будет использоваться. В ваших играх может появиться любое аниме.",
     "ProfileUpdateSuccess": "Настройки профиля успешно обновлены.",
-    "ProfileUpdateError": "Ошибка при обновлении настроек профиля."
+    "ProfileUpdateError": "Ошибка при обновлении настроек профиля.",
+    "AnimeListUpdateError": "Ошибка",
+    "AnimeListUpdateErrorDescription": "Ошибка при загрузке списка аниме. Пожалуйста, проверьте корректность введенного имени пользователя."
     
 }

@@ -1,6 +1,11 @@
 export interface GameConfiguration {
     numberOfQuestions: number;
     questionTimeout: number;
+    diversifyAnime: boolean;
+    minReleaseYear: number;
+    maxReleaseYear: number;
+    minRating: number;
+    maxRating: number;
 }
 
 export interface GameQuestion {

@@ -20,7 +20,8 @@ export interface AnimeFlattenedData {
 export interface AnimeAliasData {
     animeId: number,
     alias: string,
-    language: string
+    language: string,
+    aliasId: number
 }
 
 export interface AnimeResponse {

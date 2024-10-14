@@ -1,5 +1,6 @@
 import './i18n';
 import '@mantine/carousel/styles.css';
+import '@mantine/notifications/styles.css';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { AuthContextProvider } from './context/auth-context';
