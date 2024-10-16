@@ -1,0 +1,7 @@
+.chatMessages {
+    flex: 1;
+}
+.wrapper {
+    display: flex;
+    justify-content: flex-start;
+}

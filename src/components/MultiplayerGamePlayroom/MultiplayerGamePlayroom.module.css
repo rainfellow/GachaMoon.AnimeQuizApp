@@ -1,0 +1,57 @@
+.imageBox {
+    display: 'flex';
+    width: calc(50% + 500px);
+    max-width: 1000px;
+    margin: 0 0;
+  }
+  
+  @media (min-width: 2000px) {
+    .imageBox {
+      width: 1000px;
+    }
+  }
+  
+  .box {
+    width: 300px;
+  }
+  .boxHidden {
+    width: 300px;
+    visibility: hidden;
+  }
+  
+  .answerComponent {
+      max-width: rem(800);
+      min-width: rem(30%);
+      align-items: center;
+      align-self: center;
+      align-content: center;
+      justify-content: center;
+  }
+  
+  .gameStatusText {
+    min-height: 70px;
+  }
+  
+  .languagePicker {
+    align-self: center;
+    align-items: center;
+  }
+  
+  .answerBox {
+      max-height: rem(40px);
+      min-height: rem(40px);
+      flex-grow: 1;
+      border-radius: var(--mantine-radius-md);
+      border: rem(1px) solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-6));
+      max-width: rem(700);
+      justify-content: center;
+      margin-left: auto;
+      margin-right: auto;
+  
+  }
+  
+  .centerAligned {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }

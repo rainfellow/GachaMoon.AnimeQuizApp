@@ -3,9 +3,9 @@ import { Group, rem, Image, Text, Stack, AspectRatio, NumberFormatter, Divider, 
 import { Carousel } from '@mantine/carousel';
 import { useContext, useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { PlayerAnswerRecap } from '@/models/GameConfiguration';
+import { GameRecap, PlayerAnswerRecap } from '@/models/GameConfiguration';
 import { useAnimeBase } from '@/hooks/use-anime-base';
-import classes from './SoloGameRecap.module.css'
+import classes from './GameRecap.module.css'
 import { FaArrowCircleRight, FaArrowCircleLeft } from 'react-icons/fa';
 import { CiCircleCheck, CiCircleRemove, CiTimer, CiStar, CiCalendarDate, CiSquareQuestion} from 'react-icons/ci';
 import { FiTv, FiCheckCircle, FiHelpCircle } from 'react-icons/fi';
@@ -18,9 +18,9 @@ import { getAgeRatingTitle } from '@/utils/translation-utils';
 import { useAxios } from '@/hooks/use-axios';
 import { useDisclosure } from '@mantine/hooks';
 import { ReportAnimeBugModal } from '../ReportAnimeBugModal/ReportAnimeBugModal';
+import { useMultiplayerGame } from '@/hooks/use-multiplayer-game';
 
-export function SoloGameRecap() {
-  const { gameRecap, correctAnswers, gameState, gameName } = useContext(SoloGameContext);
+export function GameRecapComponent(props: {gameRecap: GameRecap, correctAnswers: number, gameName: string, isMultiplayer: boolean}) {
   const [slideIndex, setSlideIndex] = useState(0);
   const { account } = useAuth()
   const axios = useAxios();
@@ -30,7 +30,11 @@ export function SoloGameRecap() {
   const [correctAnswersList, setCorrectAnswersList] = useState([{answer: 0, question: ""}]);
   const [feedbackOptions, setFeedbackOptions] = useState([{difficultyFeedback: 0, playabilityFeedback: 0}]);
 
+  const { accountIdToName } = useMultiplayerGame();
+
   const [bugModalOpened, { open, close }] = useDisclosure(false);
+
+  const [playerAnswersElements, setPlayerAnswersElements] = useState<JSX.Element[]>();
 
   
   const [difficultyFeedbackValue, setDifficultyFeedbackValue] = useState("0");
@@ -87,9 +91,25 @@ export function SoloGameRecap() {
     )
   }
 
+  const updatePlayerAnswersElements = (questionNumber: number) => {
+    let playerAnswers = []
+    for (const [key, value] of Object.entries(props.gameRecap.playerAnswersRecaps)) {
+      console.log(`${key}: ${value}`);
+      playerAnswers.push({accountId: Number(key), answerId: Number(value.playerAnswer), isCorrect: Boolean(value.isCorrect)})
+    }
+    let elements = playerAnswers.map((x) => 
+      <Group justify='space-between'>
+        <Text>{accountIdToName(x.accountId)}</Text>
+        {x.isCorrect
+            ? <Badge color='green' size="xs" leftSection={<CiCircleCheck/>}>{getAnimeNameFromId(x.answerId)}</Badge>
+            : <Badge color='red' size="xs" leftSection={<CiCircleRemove/>}>{getAnimeNameFromId(x.answerId)}</Badge>}
+      </Group>)
+      setPlayerAnswersElements(elements);
+  }
+
   const handleFinishButtonClick = () => {
     axios
-      .post(`/Quiz/feedback/submit`, {gameTitle: gameName, feedbackData: feedbackOptions})
+      .post(`/Quiz/feedback/submit`, {gameTitle: props.gameName, feedbackData: feedbackOptions})
       .then(() => {
         navigate('/');
       })
@@ -120,28 +140,31 @@ export function SoloGameRecap() {
   }
 
   useEffect(() => {
-    if(gameRecap.correctAnswers.length > 0)
+    if(props.gameRecap.correctAnswers.length > 0)
     {
-      console.log(account?.accountId);
-      setAnswersRecap(gameRecap.playerAnswersRecaps[(account?.accountId ?? 0)]);
-      setSelectedAnime(getAnimeFromId(gameRecap.correctAnswers[0].answer) ?? 
+      setAnswersRecap(props.gameRecap.playerAnswersRecaps[(account?.accountId ?? 0)]);
+      setSelectedAnime(getAnimeFromId(props.gameRecap.correctAnswers[0].answer) ?? 
         {animeId: 0, malId:0, animeName: "", ageRating: "", meanScore: 0, releaseDate: "", episodeCount: 0, animeType: "", aliases: [{animeId: 0, aliasId: 0, language: "", alias: ""}]});
-      setCorrectAnswersList(gameRecap.correctAnswers);
-      setFeedbackOptions([...Array(gameRecap.correctAnswers.length)].fill({difficultyFeedback: 0, playabilityFeedback: 0}));
+      setCorrectAnswersList(props.gameRecap.correctAnswers);
+      setFeedbackOptions([...Array(props.gameRecap.correctAnswers.length)].fill({difficultyFeedback: 0, playabilityFeedback: 0}));
       setDifficultyFeedbackValue("0");
       setPlayabilityFeedbackValue("0");
-      setSlides(gameRecap.correctAnswers.map((x) => (
+      setSlides(props.gameRecap.correctAnswers.map((x) => (
         <Carousel.Slide key={x.question}>
             <Image maw={1366} mah={768} fit="contain" src={x.question} />
         </Carousel.Slide>
       )))
     }
-  }, [gameRecap])
+  }, [props.gameRecap])
+
+  useEffect(() => {
+    updatePlayerAnswersElements(slideIndex);
+  }, [slideIndex])
 
   return (
   <>
     
-    {gameRecap != undefined &&
+    {props.gameRecap != undefined &&
     <>
     <ReportAnimeBugModal anime={selectedAnime} opened={bugModalOpened} onClose={() => {}} close={close}/>
     <Group justify="center" mt="xl">
@@ -149,21 +172,36 @@ export function SoloGameRecap() {
         <Group justify='center'>
           
           <Badge color='green' size="xl" >
-            <Text>{t('game:RecapLabelUpperBadge')} {correctAnswers} / {correctAnswersList.length}</Text>
+            <Text>{t('game:RecapLabelUpperBadge')} {props.correctAnswers} / {correctAnswersList.length}</Text>
           </Badge>
         </Group>
-        <div className={classes.carousel}>
-          <AspectRatio ratio={16 / 9} maw={1366} mah={768} style={{ flex: `0 0 ${768}` }} mx="auto">
-            <Carousel 
-              withIndicators
-              onSlideChange={(value) => handleSlideChange(value)}
-              loop
-              nextControlIcon={<FaArrowCircleRight style={{ width: rem(22), height: rem(22) }} />}
-              previousControlIcon={<FaArrowCircleLeft style={{ width: rem(22), height: rem(22) }} />}>
-                {slides}
-            </Carousel>
-          </AspectRatio>
-        </div>
+        <Group justify='center'>
+          { props.isMultiplayer &&
+          <div className={classes.box}>
+            <Card>
+              <Stack>
+                {playerAnswersElements}
+              </Stack>
+            </Card>
+          </div>
+          }
+          <div className={classes.carousel}>
+            <AspectRatio ratio={16 / 9} maw={1366} mah={768} style={{ flex: `0 0 ${768}` }} mx="auto">
+              <Carousel 
+                withIndicators
+                onSlideChange={(value) => handleSlideChange(value)}
+                loop
+                nextControlIcon={<FaArrowCircleRight style={{ width: rem(22), height: rem(22) }} />}
+                previousControlIcon={<FaArrowCircleLeft style={{ width: rem(22), height: rem(22) }} />}>
+                  {slides}
+              </Carousel>
+            </AspectRatio>
+          </div>
+          { props.isMultiplayer &&
+          <div className={classes.boxHidden}>
+          </div>
+          }
+        </Group>
         <Stack>
           <Divider my="xs" labelPosition="center" /> 
           { AnswerResultComponent(answersRecap.at(slideIndex) ?? {playerAnswer: 0, timeToAnswer: 0, isCorrect: false, fromEpisode: 0}, correctAnswersList.at(slideIndex)?.answer ?? 0) }

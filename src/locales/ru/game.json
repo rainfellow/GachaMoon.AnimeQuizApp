@@ -61,5 +61,18 @@
     "PresetsDrawerTitle": "Управление шаблонами",
     "PresetsDrawerDescription": "Нажмите на иконки справа от шаблона, чтобы выбрать или удалить данный шаблон.",
     "ManagePresetsButton": "Шаблоны",
-    "SavePresetButton": "Сохранить в шаблон"
+    "SavePresetButton": "Сохранить в шаблон",
+    "GamesListJoinGameButton": "Присоединиться",
+    "GamesListRefreshListButton": "Обновить",
+    "GamesListCreateGameButton": "Создать игру",
+    "GamesListNoGamesFound": "Игр не найдено. Вы можете создать новую игру, нажав на кнопку \"Создать игру\"",
+    "GameChatSendMessageButton": "Отправить",
+    "ReadyButton": "Готов",
+    "UnReadyButton": "Не готов",
+    "ServerGameStateWaiting": "Создание...",
+    "ServerGameStateActive": "В лобби",
+    "ServerGameStatePlaying": "В игре",
+    "ServerGameStateFinished": "Завершено",
+    "ServerGameStateError": "Ошибка",
+    "GameChatSystemMessage": "[СИСТЕМА]"
 }

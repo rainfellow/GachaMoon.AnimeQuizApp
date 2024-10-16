@@ -1,0 +1,13 @@
+.gameStatusText {
+  min-height: 70px;
+}
+
+.centerAligned {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settingsFieldset {
+  min-width: 250px;
+}

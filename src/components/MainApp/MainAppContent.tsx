@@ -4,11 +4,12 @@ import { Outlet } from 'react-router-dom'
 import { Loader } from '@mantine/core';
 import { AnimeContextProvider } from '@/context/anime-context';
 import { Notifications } from '@mantine/notifications';
+import classes from './MainAppContent.module.css'
 
-const AppContent = () => {
+const MainAppContent = () => {
 
   return (
-    <div>
+    <div className={classes.content}>
       <Suspense fallback={<Loader color="primary" />}>
         <AnimeContextProvider>
           <Notifications />
@@ -19,4 +20,4 @@ const AppContent = () => {
   )
 }
 
-export default React.memo(AppContent)
+export default React.memo(MainAppContent)

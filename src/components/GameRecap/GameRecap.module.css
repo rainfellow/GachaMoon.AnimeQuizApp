@@ -33,3 +33,12 @@
       width: 1000px;
     }
   }
+
+  .box {
+    width: 400px;
+  }
+  .boxHidden {
+    width: 400px;
+    visibility: hidden;
+  }
+  

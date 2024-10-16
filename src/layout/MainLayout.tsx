@@ -4,6 +4,7 @@ import { AuthContext } from '../context/auth-context';
 import { AppShell } from '@mantine/core';
 import { MainAppHeader } from '@/components/MainApp/MainAppHeader';
 import MainAppContent from '@/components/MainApp/MainAppContent';
+import classes from "./MainLayout.module.css"
 
 const MainLayout = () => {
   const axios = useAxios();
@@ -32,7 +33,9 @@ const MainLayout = () => {
         <MainAppHeader/>
       </AppShell.Header>
 
-      <AppShell.Main><MainAppContent/></AppShell.Main>
+      <AppShell.Main className={classes.mainLayout}>
+        <MainAppContent/>
+      </AppShell.Main>
     </AppShell>
   );
 }

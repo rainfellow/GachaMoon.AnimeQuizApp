@@ -64,7 +64,6 @@ class SoloHubConnector {
                     let promise = new Promise<GameAnswer>((resolve, reject) => {
                         this.answerWaitingInterval = setInterval(() => {
                         if (this.isQuestionAnswered) {
-                            this.isQuestionAnswered = false;
                             resolve(this.answer);
                         }
                         }, 100);
@@ -72,6 +71,7 @@ class SoloHubConnector {
                     return promise;
                 });
                 this.connection.on("ConfirmAnswerReceived", () => {
+                    this.isQuestionAnswered = false;
                     clearInterval(this.answerWaitingInterval);
                     onConfirmAnswerReceived();
                 });

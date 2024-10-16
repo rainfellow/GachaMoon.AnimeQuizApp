@@ -61,5 +61,18 @@
     "PresetsDrawerTitle": "Manage Presets",
     "PresetsDrawerDescription": "Click on icons next to preset names to use or delete that preset",
     "ManagePresetsButton": "Presets",
-    "SavePresetButton": "Save to preset"
+    "SavePresetButton": "Save to preset",
+    "GamesListJoinGameButton": "Join Game",
+    "GamesListRefreshListButton": "Refresh",
+    "GamesListCreateGameButton": "Create New Game",
+    "GamesListNoGamesFound": "No games found, but you can create your own!",
+    "GameChatSendMessageButton": "Send Message",
+    "ReadyButton": "Ready",
+    "UnReadyButton": "Not ready",
+    "ServerGameStateWaiting": "Waiting",
+    "ServerGameStateActive": "In Lobby",
+    "ServerGameStatePlaying": "Playing",
+    "ServerGameStateFinished": "Finished",
+    "ServerGameStateError": "Error",
+    "GameChatSystemMessage": "[SYSTEM]"
 }

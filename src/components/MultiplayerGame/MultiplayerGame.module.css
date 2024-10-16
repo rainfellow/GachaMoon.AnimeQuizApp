@@ -1,0 +1,10 @@
+.chatWindow {
+    display: flex;
+    max-width: 300px;
+    margin: 0 70px 0 0;
+    height: 100%;
+}
+
+.fullHeight {
+    height: 100%;
+}

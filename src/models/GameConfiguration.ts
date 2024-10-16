@@ -30,7 +30,7 @@ export interface GameAnswer {
 }
 
 export enum GameState {
-    None, Lobby, Starting, Started, QuestionReceived, QuestionAnswered, AnswerReceived, QuestionTransition, Finished
+    None, Connected, Lobby, Starting, Started, QuestionReceived, QuestionAnswered, AnswerReceived, QuestionTransition, Finished
 }
 
 export interface GameRecap {
@@ -52,4 +52,45 @@ export interface PlayerAnswerRecap {
     isCorrect: boolean;
     timeToAnswer: number;
     fromEpisode: number;
+}
+
+export interface GameDetails {
+    gameName: string;
+    currentPlayers: number;
+    gameStatus: ServerGameState;
+}
+
+export enum ServerGameState {
+    None, Waiting, Active, Playing, Finished
+}
+
+export interface PlayerInfo {
+    accountId: number;
+    accountName: string;
+}
+
+export interface GameJoinResult {
+    isSuccessful: boolean;
+    players: PlayerInfo[];
+    gameConfiguration: GameConfiguration;
+}
+
+export interface PlayerLobbyStatus {
+    status: LobbyStatus;
+    gameName: string | null
+}
+export enum LobbyStatus {
+    None, HasActiveGame, Idle
+}
+
+export interface ChatMessage {
+    accountId: number;
+    message: string;
+}
+
+export interface PlayerAnswer {
+    accountId: number;
+    answer: number;
+    isCorrect: boolean;
+    totalCorrect: number;
 }

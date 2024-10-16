@@ -9,20 +9,22 @@ import classes from './SoloLobbyView.module.css';
 import { AnimeAutocomplete } from '@/components/AnimeAutocomplete/AnimeAutocomplete';
 import { AnimeAutocompleteConfig } from '@/components/AnimeAutocompleteConfig/AnimeAutocompleteConfig';
 import { useTranslation } from 'react-i18next';
-import { SoloGameRecap } from '@/components/SoloGameRecap/SoloGameRecap';
 import { useNavigate } from 'react-router-dom';
 import { CiCircleCheck, CiCircleRemove, CiSquareCheck, CiTrash, CiFileOn} from 'react-icons/ci';
 import { useDisclosure, useInterval } from '@mantine/hooks';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { LocalGameSettingsPresets } from '@/models/GameplaySettings';
 import { SavePresetModal } from '@/components/SavePresetModal/SavePresetModal';
+import { SettingsPresetsDrawer } from '@/components/SetingsPresetsDrawer/SetingsPresetsDrawer';
 import superjson from 'superjson';
+import { ImageLoader } from '@/components/ImageLoader/ImageLoader';
+import { GameRecapComponent } from '@/components/GameRecap/GameRecap';
 
 export const SoloLobbyView: React.FC = (): ReactElement => {
   const { t } = useTranslation('game');
   const { isReady, setIsReady, gameState, gameConfiguration,
     currentQuestion, setCurrentQuestion, currentAnswer, setCurrentAnswer, correctAnswers, setCorrectAnswers, lastAnswerData, 
-    setQuestionNumber, setQuestionTimeout, setDiversifyAnime, setAnimeAllowedRating, setAnimeAllowedYears } = useContext(SoloGameContext);
+    setQuestionNumber, setQuestionTimeout, setDiversifyAnime, setAnimeAllowedRating, setAnimeAllowedYears, gameName, gameRecap } = useContext(SoloGameContext);
 
   
   const [opened, { open, close }] = useDisclosure(false);
@@ -43,7 +45,6 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
   
   const [configPresets, setConfigPresets] = useState<LocalGameSettingsPresets>({presets: new Map<string, GameConfiguration>()});
 
-  const [drawerPresetElements, setDrawerPresetElements] = useState<JSX.Element[]>();
 
   //basic settings
   const [questionNumberValue, setQuestionNumberValue] = useState(gameConfiguration.numberOfQuestions);
@@ -112,7 +113,6 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
           maxReleaseYear: gameConfiguration.maxReleaseYear
         });
         setItem('config-presets', superjson.stringify(configPresets));
-        updateDrawerData(configPresets);
         return configPresets;
       })
   }
@@ -121,7 +121,6 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
     setConfigPresets((configPresets) => {
         configPresets.presets.delete(name);
         setItem('config-presets', superjson.stringify(configPresets));
-        updateDrawerData(configPresets);
         console.log('preset deleted')
         return configPresets;
     })
@@ -147,27 +146,6 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
     }
   }
 
-  const updateDrawerData = (configPresets: LocalGameSettingsPresets) => {
-    const data = configPresets.presets.keys().map((k) => 
-    <Group justify='space-between' key={k}>
-      <Group justify='flex-start'>
-        <Text>
-          {k}
-        </Text>
-      </Group>
-      <Group justify='flex-end'>
-        <ActionIcon id={k+"_load_button"} variant="filled" aria-label="Load" onClick={() => loadPreset(k)}>
-          <CiFileOn/>
-        </ActionIcon>
-        <ActionIcon id={k+"_delete_button"} variant="filled" color="red" aria-label="Delete" onClick={() => deletePreset(k)}>
-          <CiTrash/>
-        </ActionIcon>
-      </Group>
-    </Group>
-      )
-    setDrawerPresetElements(data.toArray());
-  } 
-
   const isInLobbyScreen = () => {
     return (gameState == (GameState.Lobby || GameState.Starting || GameState.Finished))
   }
@@ -182,13 +160,11 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
         configPresets.presets = loadedConfigPresets.presets;
         return configPresets;
       });
-      updateDrawerData(loadedConfigPresets);
     }
     else
     {
       setConfigPresets((configPresets) => {
         configPresets.presets.set('default', { questionTimeout: 20, numberOfQuestions: 10, diversifyAnime: false, minRating: 0, maxRating: 10, minReleaseYear: 1970, maxReleaseYear: 2025})
-        updateDrawerData(configPresets);
         return configPresets;
       });
     }
@@ -248,20 +224,8 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
       <>
       <Paper>
         <SavePresetModal preset={gameConfiguration} onSave={createNewPreset} opened={modalOpened} close={modalHandlers.close}/>
-        <Drawer offset={8} radius="md" opened={opened} onClose={close} title={t('game:PresetsDrawerTitle')} scrollAreaComponent={ScrollArea.Autosize}>
-          <Stack justify='flex-start'>
-            <Text c='dimmed' size='xs'>{t('game:PresetsDrawerDescription')}</Text>
-              {configPresets != undefined && drawerPresetElements}
-          </Stack>
-        </Drawer>
-        <Flex
-          mih={50}
-          gap="md"
-          justify="center"
-          align="center"
-          direction="column"
-          wrap="wrap"
-        >
+        <SettingsPresetsDrawer presets={configPresets} onloadPreset={loadPreset} onDeletePreset={deletePreset} opened={opened} onClose={close}/>
+        <Flex mih={50} gap="md" justify="center" align="center" direction="column" wrap="wrap">
           <Container fluid>
             <Group align="flex-start" justify='center'>
               <Fieldset legend={t('BasicSettingsLabel')} className={classes.settingsFieldset}>
@@ -300,30 +264,6 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
     )
   }
 
-  type UrlProps = {
-    url: string | null;
-  };
-  
-  const ImageLoader = ({ url }: UrlProps) => {
-    return (
-      <Flex
-        mih="100%"
-        gap="md"
-        justify="center"
-        align="center"
-        direction="column"
-        wrap="wrap"
-      >
-          <div style={{ display: loading ? 'block' : 'none' }}>
-            <Loader />
-          </div>
-          <div style={{ display: loading ? 'none' : 'block' }}>
-            <Image src={url} onLoad={() => setLoading(false)} />
-          </div>
-      </Flex>
-    )
-  };
-
   function playingScreen() {
     return (
       <Paper>
@@ -336,7 +276,7 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
             </div>
             <div className={classes.imageBox}>
               <AspectRatio ratio={16 / 9} maw={1366} mah={768} style={{ flex: `0 0 ${768}` }} mx="auto">
-                <ImageLoader url={currentQuestion.question}/>
+                <ImageLoader url={currentQuestion.question} loading={loading} setLoading={setLoading}/>
               </AspectRatio>
             </div>
             <div className={classes.boxHidden}>
@@ -380,7 +320,7 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
 
   return (
     <>
-    { gameState == GameState.Finished ? <SoloGameRecap/> : 
+    { gameState == GameState.Finished ? <GameRecapComponent gameName={gameName} gameRecap={gameRecap} correctAnswers={correctAnswers} isMultiplayer={false} /> : 
       (gameState != GameState.None && animeLoaded) ? ((isInLobbyScreen()) ? settingsScreen() : playingScreen()) : loadingScreen()}</>
   );
 }
