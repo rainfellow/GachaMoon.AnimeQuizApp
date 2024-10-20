@@ -1,7 +1,6 @@
 import React, { createContext, useCallback, useState } from "react";
 import type { ReactElement } from "react";
-import { GameAnswer, GameCompletedEvent, GameConfiguration, GameQuestion, GameRecap, GameState, PlayerAnswerRecap, PlayerAnswersRecapsMap, QuestionResult } from "../models/GameConfiguration";
-import { List } from "@mantine/core";
+import { GameAnswer, GameCompletedEvent, GameConfiguration, GameQuestion, GameQuestionType, GameRecap, GameState, GetDefaultConfiguration, PlayerAnswerRecap, PlayerAnswersRecapsMap, QuestionResult, SongGameConfiguration } from "../models/GameConfiguration";
 
 export interface ISoloGameContext {
     isReady: boolean;
@@ -27,6 +26,17 @@ export interface ISoloGameContext {
     setDiversifyAnime: (value: boolean) => void;
     setAnimeAllowedYears: (minYear: number, maxYear: number) => void;
     setAnimeAllowedRating: (minRating: number, maxRating: number) => void;
+    setImageQuestions: (value: number) => void;
+    setSongQuestions: (value: number) => void;
+    setAllowMovie: (value: boolean) => void;
+    setAllowTv: (value: boolean) => void;
+    setAllowOva: (value: boolean) => void;
+    setAllowMusic: (value: boolean) => void;
+    setAllowSpecial: (value: boolean) => void;
+    setSongConfiguration: (value: SongGameConfiguration) => void;
+    setAllowOps: (value: boolean) => void;
+    setAllowEds: (value: boolean) => void;
+    setAllowIns: (value: boolean) => void;
 }
 
 export const SoloGameContext = createContext<ISoloGameContext>({
@@ -35,13 +45,13 @@ export const SoloGameContext = createContext<ISoloGameContext>({
     setIsReady: () => { console.log("setting ready state") },
     gameState: GameState.None,
     setGameState: (gameState: GameState) => { console.log("setting game state:" + gameState) },
-    currentQuestion: { question: "test" },
+    currentQuestion: { question: "placeholder", questionType: "None" },
     setCurrentQuestion: () => { console.log("setting current question") },
     currentAnswer: { choice: undefined, customChoice: undefined },
     setCurrentAnswer: () => { console.log("setting current answer") },
     correctAnswers: 0,
     setCorrectAnswers: () => { console.log("setting correct answers number") },
-    gameConfiguration: { questionTimeout: 20, numberOfQuestions: 10, diversifyAnime: false, minRating: 0, maxRating: 10, minReleaseYear: 1970, maxReleaseYear: 2025 },
+    gameConfiguration: GetDefaultConfiguration(),
     setGameConfiguration: () => { console.log("setting game config") },
     lastAnswerData: { correctAnswerId: 0, detectedAnswerId: 0, isCorrect: false },
     setLastAnswerData: () => { console.log("setting game config") },
@@ -54,6 +64,17 @@ export const SoloGameContext = createContext<ISoloGameContext>({
     setDiversifyAnime: () => { console.log("setting game name") },
     setAnimeAllowedYears: () => { console.log("setting game name") },
     setAnimeAllowedRating: () => { console.log("setting game name") },
+    setImageQuestions: () => { console.log("setting game name") },
+    setSongQuestions: () => { console.log("setting game name") },
+    setAllowTv: () => { console.log("setting game name") },
+    setAllowOva: () => { console.log("setting game name") },
+    setAllowMovie: () => { console.log("setting game name") },
+    setAllowMusic: () => { console.log("setting game name") },
+    setAllowSpecial: () => { console.log("setting game name") },
+    setSongConfiguration: () => { console.log("setting game name") },
+    setAllowOps: () => { console.log("setting game name") },
+    setAllowEds: () => { console.log("setting game name") },
+    setAllowIns: () => { console.log("setting game name") }
 });
 
 interface SoloGameContextProviderProps {
@@ -64,7 +85,7 @@ export const SoloGameContextProvider: React.FC<SoloGameContextProviderProps> = (
     children
 }: SoloGameContextProviderProps): ReactElement => {
     
-    const defaultQuestion: GameQuestion = { question: "test" };
+    const defaultQuestion: GameQuestion = { question: "test", questionType: "None" };
     const defaultAnswer: GameAnswer = { choice: undefined, customChoice: undefined };
     const [ isReady, setIsReady ] = useState(false);
     const [ gameName, setGameName ] = useState("");
@@ -73,7 +94,7 @@ export const SoloGameContextProvider: React.FC<SoloGameContextProviderProps> = (
     const [ currentAnswer, setCurrentAnswer ] = useState(defaultAnswer);
     const [ correctAnswers, setCorrectAnswers ] = useState(0);
     const [ lastAnswerData, setLastAnswerData ] = useState( { correctAnswerId: 0, detectedAnswerId: 0, isCorrect: false });
-    const [ gameConfiguration, setGameConfiguration ] = useState({ questionTimeout: 20, numberOfQuestions: 10, diversifyAnime: false, minRating: 0, maxRating: 10, minReleaseYear: 1970, maxReleaseYear: 2025 });
+    const [ gameConfiguration, setGameConfiguration ] = useState(GetDefaultConfiguration());
     const [ gameRecap, setGameRecap ] = useState({ correctAnswers: [{answer: 0, question: ""}], playerAnswersRecaps: {} });
     const contextValue = {
         isReady,
@@ -143,8 +164,73 @@ export const SoloGameContextProvider: React.FC<SoloGameContextProviderProps> = (
                 gameConfiguration.maxRating = maxRating;
                 return gameConfiguration;
             });
-        }, [])
-
+        }, []),
+        setImageQuestions: useCallback((value: number) => {
+            setGameConfiguration((gameConfiguration) => {
+                gameConfiguration.imageQuestions = value;
+                return gameConfiguration;
+            });
+        }, []),
+        setSongQuestions: useCallback((value: number) => {
+            setGameConfiguration((gameConfiguration) => {
+                gameConfiguration.songQuestions = value;
+                return gameConfiguration;
+            });
+        }, []),
+        setAllowMovie: useCallback((value: boolean) => {
+            setGameConfiguration((gameConfiguration) => {
+                gameConfiguration.allowMovie = value;
+                return gameConfiguration;
+            });
+        }, []),
+        setAllowTv: useCallback((value: boolean) => {
+            setGameConfiguration((gameConfiguration) => {
+                gameConfiguration.allowTv = value;
+                return gameConfiguration;
+            });
+        }, []),
+        setAllowSpecial: useCallback((value: boolean) => {
+            setGameConfiguration((gameConfiguration) => {
+                gameConfiguration.allowSpecial = value;
+                return gameConfiguration;
+            });
+        }, []),
+        setAllowOva: useCallback((value: boolean) => {
+            setGameConfiguration((gameConfiguration) => {
+                gameConfiguration.allowOva = value;
+                return gameConfiguration;
+            });
+        }, []),
+        setAllowMusic: useCallback((value: boolean) => {
+            setGameConfiguration((gameConfiguration) => {
+                gameConfiguration.allowMusic = value;
+                return gameConfiguration;
+            });
+        }, []),
+        setSongConfiguration: useCallback((value: SongGameConfiguration) => {
+            setGameConfiguration((gameConfiguration) => {
+                gameConfiguration.songConfiguration = value;
+                return gameConfiguration;
+            });
+        }, []),
+        setAllowOps: useCallback((value: boolean) => {
+            setGameConfiguration((gameConfiguration) => {
+                gameConfiguration.songConfiguration.allowOps = value;
+                return gameConfiguration;
+            });
+        }, []),
+        setAllowEds: useCallback((value: boolean) => {
+            setGameConfiguration((gameConfiguration) => {
+                gameConfiguration.songConfiguration.allowEds = value;
+                return gameConfiguration;
+            });
+        }, []),
+        setAllowIns: useCallback((value: boolean) => {
+            setGameConfiguration((gameConfiguration) => {
+                gameConfiguration.songConfiguration.allowIns = value;
+                return gameConfiguration;
+            });
+        }, []),
     };
 
     return (

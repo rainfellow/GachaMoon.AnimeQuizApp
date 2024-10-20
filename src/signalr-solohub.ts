@@ -1,5 +1,5 @@
 import * as signalR from "@microsoft/signalr";
-import { GameAnswer, GameCompletedEvent, GameConfiguration, GameQuestion, QuestionResult } from "./models/GameConfiguration";
+import { GameAnswer, GameCompletedEvent, GameConfiguration, GameQuestion, LobbyStatus, PlayerLobbyStatus, QuestionResult } from "./models/GameConfiguration";
 const URL = "https://game.gachamoon.xyz/soloquiz";
 class SoloHubConnector {
     private connection: signalR.HubConnection;
@@ -13,7 +13,6 @@ class SoloHubConnector {
 
     public events: ((
         onMessageReceived: (message: string) => void,
-        onWaitReady: () => void,
         onAskQuestion: (question: GameQuestion) => void,
         onConfirmAnswerReceived: () => void,
         onSendQuestionResult: (questionResult: QuestionResult) => void,
@@ -32,11 +31,10 @@ class SoloHubConnector {
               })
             .withAutomaticReconnect()
             .build();
-        this.events = (onMessageReceived, onWaitReady, onAskQuestion, onConfirmAnswerReceived, onSendQuestionResult, onSendQuestionTransitionMessage, onGameStarted, onGameCompleted) => {}
+        this.events = (onMessageReceived, onAskQuestion, onConfirmAnswerReceived, onSendQuestionResult, onSendQuestionTransitionMessage, onGameStarted, onGameCompleted) => {}
         this.connection.start().catch(err => console.log(err)).then(() => { 
-            this.events = (onMessageReceived, onWaitReady, onAskQuestion, onConfirmAnswerReceived, onSendQuestionResult, onSendQuestionTransitionMessage, onGameStarted, onGameCompleted) => {
+            this.events = (onMessageReceived, onAskQuestion, onConfirmAnswerReceived, onSendQuestionResult, onSendQuestionTransitionMessage, onGameStarted, onGameCompleted) => {
                 this.connection.off("WriteMessage");
-                this.connection.off("WaitReady");
                 this.connection.off("AskQuestion");
                 this.connection.off("ConfirmAnswerReceived");
                 this.connection.off("SendQuestionResult");
@@ -44,20 +42,6 @@ class SoloHubConnector {
                 this.connection.off("GameStarted");
                 this.connection.on("WriteMessage", (message: string) => {
                     onMessageReceived(message);
-                });
-                this.connection.on("WaitReady", async () => {
-                    onWaitReady()
-                    
-                    let promise: Promise<boolean> = new Promise((resolve, reject) => {
-                        const intervalId = setInterval(() => {
-                          if (this.isReadyForGame) {
-                            clearInterval(intervalId);
-                            this.isReadyForGame = false;
-                            resolve(true);
-                          }
-                        }, 100);
-                      });
-                    return promise;
                 });
                 this.connection.on("AskQuestion", async (question: GameQuestion) => {
                     onAskQuestion(question);
@@ -98,7 +82,22 @@ class SoloHubConnector {
         
     }
 
-    public createGame = async () => {
+    public connectToLobby = async () => {
+        return this.connection.invoke("ConnectToLobby").then((x: PlayerLobbyStatus) => {
+            this.resetGameStates();
+            if (x.status == LobbyStatus.HasActiveGame)
+            {
+                console.log("connected to lobby while having an active game. reconnecting! game: " + x.gameName);
+                return x.gameName;
+            }
+            else
+            {
+                this.isReadyForGame = true;
+            }
+        })
+    }
+
+    public startGame = async (gameConfiguration: GameConfiguration) => {
         await new Promise<boolean>((resolve) => {
             const intervalId = setInterval(() => {
               if (this.isConnected) {
@@ -107,20 +106,16 @@ class SoloHubConnector {
               }
             }, 100);
         });
-        this.connection.invoke("JoinSoloLobby").then((x: string) => {
+        this.connection.invoke("StartGame", gameConfiguration).then((x: string) => {
             this.currentGameName = x;
             console.log("joined game " + x);
         })
     }
     
-    public setGameSettings = (gameConfiguration: GameConfiguration) => {
+    private setGameSettings = (gameConfiguration: GameConfiguration) => {
         return this.connection.invoke("SetGameSettings", gameConfiguration).then(x => x === true ? console.log("successfully changed game settings") : console.log("error while changing game settings " + x))
     }
 
-    public setReadyForGame = () =>
-    {
-        this.isReadyForGame = true;
-    }
     public setQuestionAnswered = (answer: GameAnswer) =>
     {
         this.answer = answer;
@@ -136,6 +131,13 @@ class SoloHubConnector {
         if (!SoloHubConnector.instance)
             SoloHubConnector.instance = new SoloHubConnector(authToken);
         return SoloHubConnector.instance;
+    }
+
+    private resetGameStates = () => {
+        this.currentGameName = "";
+        this.isQuestionAnswered = false;
+        this.answer = { choice: undefined, customChoice: undefined};
+        this.isReadyForGame = false;
     }
 }
 export default SoloHubConnector.getInstance;

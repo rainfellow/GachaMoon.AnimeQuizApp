@@ -38,8 +38,8 @@ const AnimeListsConfiguration = () => {
                 data={[
                 { label: 'None', value: 'None' },
                 { label: 'MyAnimeList', value: 'MyAnimeList' },
-                { label: 'Anilist', value: 'Anilist', disabled: true },
-                { label: 'Shikimori', value: 'Shikimori', disabled: true },
+                { label: 'Anilist', value: 'Anilist' },
+                { label: 'Shikimori', value: 'Shikimori' },
                 { label: 'Custom', value: 'Custom', disabled: true },
                 ]}
             />

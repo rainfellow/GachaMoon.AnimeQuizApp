@@ -7,10 +7,13 @@ import { ReactElement, useContext, useEffect } from "react";
 import { MultiplayerGameSettings } from "../MultiplayerGameSettings/MultiplayerGameSettings";
 import classes from "./MultiplayerGame.module.css"
 import { GameRecapComponent } from "../GameRecap/GameRecap";
+import { useMultiplayerGame } from "@/hooks/use-multiplayer-game";
 
 export const MultiplayerGame: React.FC = (): ReactElement => {
 
     const { gameState, gameName, gameRecap, correctAnswers } = useContext(MultiplayerGameContext)
+
+    const { accountIdToName } = useMultiplayerGame();
 
     const isInSettingsScreen = (gameState: GameState) => {
         return gameState == GameState.Lobby || gameState == GameState.Starting;
@@ -19,7 +22,7 @@ export const MultiplayerGame: React.FC = (): ReactElement => {
         <Grid justify="space-between" classNames={{ root: classes.fullHeight, inner: classes.fullHeight}}>
             <Grid.Col span="auto">
             { isInSettingsScreen(gameState) ? <MultiplayerGameSettings/>
-             : gameState != GameState.Finished ? <MultiplayerGamePlayroom/> : <GameRecapComponent gameName={gameName} gameRecap={gameRecap} correctAnswers={correctAnswers} isMultiplayer={true} /> }
+             : gameState != GameState.Finished ? <MultiplayerGamePlayroom/> : <GameRecapComponent gameName={gameName} gameRecap={gameRecap} correctAnswers={correctAnswers} isMultiplayer={true} findAccountNameById={accountIdToName}/> }
             </Grid.Col>
             
             <Grid.Col span={2} className={classes.chatWindow}>

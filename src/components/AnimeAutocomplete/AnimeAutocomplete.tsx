@@ -80,7 +80,7 @@ function getFilteredOptions(data: AnimeData[], searchQuery: string, limit: numbe
   return result;
 }
 
-export function AnimeAutocomplete(props: { className: string, data: AnimeData[] | undefined, limit: number, value: string | undefined, onChange: (value: string) => void}) {
+export function AnimeAutocomplete(props: { className: string, data: AnimeData[] | undefined, limit: number, value: string | undefined, onChange: (value: string) => void, onEnterPress: (value: string) => void }) {
   const { animeAutocompleteSettings } = useContext(LocalSettingsContext);
   const defaultFilteredAnime: AnimeFilteredData = {animeData: {aliases: [], animeId: 0, animeName: "", malId: 0, releaseDate: "", meanScore: 0, ageRating: "", animeType: "", episodeCount: 0}, filteredAnimeString: ""};
   const combobox = useCombobox();
@@ -112,6 +112,11 @@ export function AnimeAutocomplete(props: { className: string, data: AnimeData[] 
             props.onChange(event.currentTarget.value);
             combobox.openDropdown();
           }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+                props.onEnterPress(props.value ?? '');
+            }
+        }}
           onClick={() => combobox.openDropdown()}
           onFocus={() => combobox.openDropdown()}
           onBlur={() => combobox.closeDropdown()}

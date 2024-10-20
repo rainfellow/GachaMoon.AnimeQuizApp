@@ -19,6 +19,8 @@ class MultiplayerHubConnector {
         onGameConfigurationUpdated: (gameConfiguration: GameConfiguration) => void,
         onPlayerJoined: (playerInfo: PlayerInfo) => void,
         onPlayerLeft: (accountId: number) => void,
+        onPlayerDisconnected: (accountId: number) => void,
+        onPlayerReconnected: (accountId: number) => void,
         onSendQuestionResult: (questionResult: QuestionResult) => void,
         onSendQuestionTransitionMessage: (playerAnswers: PlayerAnswer[]) => void,
         onGameStarted: (gameConfiguration: GameConfiguration) => void,
@@ -35,9 +37,9 @@ class MultiplayerHubConnector {
               })
             .withAutomaticReconnect()
             .build();
-        this.events = (onMessageReceived, onAskQuestion, onConfirmAnswerReceived, onGameConfigurationUpdated, onPlayerJoined, onPlayerLeft, onSendQuestionResult, onSendQuestionTransitionMessage, onGameStarted, onGameCompleted) => {}
+        this.events = (onMessageReceived, onAskQuestion, onConfirmAnswerReceived, onGameConfigurationUpdated, onPlayerJoined, onPlayerLeft, onPlayerDisconnected, onPlayerReconnected, onSendQuestionResult, onSendQuestionTransitionMessage, onGameStarted, onGameCompleted) => {}
         this.connection.start().catch(err => console.log(err)).then(() => { 
-            this.events = (onMessageReceived, onAskQuestion, onConfirmAnswerReceived, onGameConfigurationUpdated, onPlayerJoined, onPlayerLeft, onSendQuestionResult, onSendQuestionTransitionMessage, onGameStarted, onGameCompleted) => {
+            this.events = (onMessageReceived, onAskQuestion, onConfirmAnswerReceived, onGameConfigurationUpdated, onPlayerJoined, onPlayerLeft, onPlayerDisconnected, onPlayerReconnected, onSendQuestionResult, onSendQuestionTransitionMessage, onGameStarted, onGameCompleted) => {
                 this.connection.off("MessageReceived");
                 this.connection.off("AskQuestion");
                 this.connection.off("ConfirmAnswerReceived");
@@ -76,6 +78,12 @@ class MultiplayerHubConnector {
                 this.connection.on("PlayerLeft", (accountId: number) => {
                     onPlayerLeft(accountId);
                 });
+                this.connection.on("PlayerDisconnecter", (accountId: number) => {
+                    onPlayerDisconnected(accountId);
+                });
+                this.connection.on("PlayerReconnected", (accountId: number) => {
+                    onPlayerReconnected(accountId);
+                });
                 this.connection.on("SendQuestionResult", (questionResult: QuestionResult) => {
                     onSendQuestionResult(questionResult);
                 });
@@ -100,12 +108,12 @@ class MultiplayerHubConnector {
     }
 
     public connectToLobby = async () => {
-        this.connection.invoke("ConnectToLobby").then((x: PlayerLobbyStatus) => {
+        return this.connection.invoke("ConnectToLobby").then((x: PlayerLobbyStatus) => {
             this.resetGameStates();
             if (x.status == LobbyStatus.HasActiveGame)
             {
-                this.currentGameName = x.gameName!;
-                console.log("connected to lobby while having an active game. reconnecting! game: " + x);
+                console.log("connected to lobby while having an active game. reconnecting! game: " + x.gameName);
+                return x.gameName;
             }
         })
     }
@@ -142,6 +150,7 @@ class MultiplayerHubConnector {
     public getActiveGames = async () => {
         return this.connection.invoke("GetActiveGames").then((x: GameDetails[]) => { console.log('fetched games: ' + x.length); return x });
     }
+
     public setQuestionAnswered = (answer: GameAnswer) =>
     {
         this.answer = answer;
@@ -178,6 +187,21 @@ class MultiplayerHubConnector {
             else
             {
                 console.log('failed to leave game ' + this.currentGameName); 
+            }
+            return x;
+        });
+    }
+
+    public reconnectToGame = async (gameName: string) => {
+        return this.connection.invoke("TryRejoinGame", gameName).then((x: GameJoinResult) => { 
+            if (x.isSuccessful)
+            {
+                console.log('rejoined game ' + gameName); 
+                this.currentGameName = gameName;
+            }
+            else
+            {
+                console.log('failed to join game ' + gameName); 
             }
             return x;
         });

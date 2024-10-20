@@ -3,7 +3,7 @@ import { ReactElement, useContext, useEffect, useState } from "react";
 import { SavePresetModal } from "../SavePresetModal/SavePresetModal";
 import { SettingsPresetsDrawer } from "../SetingsPresetsDrawer/SetingsPresetsDrawer";
 import { MultiplayerGameContext } from "@/context/multiplayer-game-context";
-import { GameConfiguration, GameState } from "@/models/GameConfiguration";
+import { GameConfiguration, GameState, GetDefaultConfiguration } from "@/models/GameConfiguration";
 import { useDisclosure } from "@mantine/hooks";
 import { LocalGameSettingsPresets } from "@/models/GameplaySettings";
 import { useLocalStorage } from "@/hooks/use-local-storage";
@@ -13,9 +13,10 @@ import { useMultiplayerGame } from "@/hooks/use-multiplayer-game";
 import { useTranslation } from "react-i18next";
 
 export const MultiplayerGameSettings: React.FC = (): ReactElement => {
-     const { gameConfiguration, gameState, setQuestionTimeout, setQuestionNumber, setAnimeAllowedRating, setAnimeAllowedYears, setDiversifyAnime, isLobbyLeader } = useContext(MultiplayerGameContext);
+     const { gameConfiguration, gameState, setQuestionTimeout, setQuestionNumber, setAnimeAllowedRating, setAnimeAllowedYears, setDiversifyAnime, isLobbyLeader, setImageQuestions, setSongQuestions,
+        setAllowEds, setAllowIns, setAllowOps, setAllowMovie, setAllowMusic, setAllowOva, setAllowSpecial, setAllowTv } = useContext(MultiplayerGameContext);
 
-     const { setReadyStatus, updateGameSettings } = useMultiplayerGame();
+     const { setReadyStatus, updateGameSettings, leaveCurrentGame } = useMultiplayerGame();
      const { t } = useTranslation('game');
      const [isReady, setIsReady] = useState(false);
   
@@ -30,7 +31,23 @@ export const MultiplayerGameSettings: React.FC = (): ReactElement => {
      //basic settings
      const [questionNumberValue, setQuestionNumberValue] = useState(gameConfiguration.numberOfQuestions);
      const [questionTimeoutValue, setQuestionTimeoutValue] = useState(gameConfiguration.questionTimeout);
-   
+
+     //quiz type settings
+     const [imageQuestionsValue, setImageQuestionsValue] = useState(gameConfiguration.imageQuestions);
+     //anime type filters
+
+     const [allowOvaValue, setAllowOvaValue] = useState(gameConfiguration.allowOva);
+     const [allowMusicValue, setAllowMusicValue] = useState(gameConfiguration.allowMusic);
+     const [allowTvValue, setAllowTvValue] = useState(gameConfiguration.allowTv);
+     const [allowMovieValue, setAllowMovieValue] = useState(gameConfiguration.allowMovie);
+     const [allowSpecialValue, setAllowSpecialValue] = useState(gameConfiguration.allowSpecial);
+
+     //song type filters
+
+     const [allowOpsValue, setAllowOpsValue] = useState(gameConfiguration.songConfiguration.allowOps);
+     const [allowEdsValue, setAllowEdsValue] = useState(gameConfiguration.songConfiguration.allowEds);
+     const [allowInsValue, setAllowInsValue] = useState(gameConfiguration.songConfiguration.allowIns);
+
      //anime filters
      const [animeYearsRangeValues, setAnimeYearsRangeValues] = useState<[number, number]>([gameConfiguration.minReleaseYear, gameConfiguration.maxReleaseYear]);
      const [animeRatingsRangeValues, setAnimeRatingsRangeValues] = useState<[number, number]>([gameConfiguration.minRating, gameConfiguration.maxRating]);
@@ -56,7 +73,40 @@ export const MultiplayerGameSettings: React.FC = (): ReactElement => {
         setQuestionNumberValue(value);
         setQuestionNumber(value);
         let a = gameConfiguration;
-        a.numberOfQuestions = value;
+        if (imageQuestionsValue > value)
+        {
+          setImageQuestionsValue(value);
+          setImageQuestions(value);
+          a.imageQuestions = value;
+          a.numberOfQuestions = value;
+          a.songQuestions = 0;
+          setSongQuestions(0);
+        }
+        else
+        {
+          setSongQuestions(value - imageQuestionsValue);
+          a.songQuestions = value - imageQuestionsValue;
+        }
+        updateGameSettings(a);
+      };
+    
+      const handleImageQuestionsRangeChange = (value: number) => {
+        setImageQuestionsValue(value);
+        setImageQuestions(value);
+        setSongQuestions(questionNumberValue - value);
+        let a = gameConfiguration;
+        a.imageQuestions = value;
+        a.songQuestions = questionNumberValue - value;
+        updateGameSettings(a);
+      };
+    
+      const handleSongQuestionsRangeChange = (value: number) => {
+        setImageQuestionsValue(questionNumberValue - value);
+        setImageQuestions(questionNumberValue - value);
+        setSongQuestions(value);
+        let a = gameConfiguration;
+        a.songQuestions = value;
+        a.imageQuestions = questionNumberValue - value;
         updateGameSettings(a);
       };
     
@@ -86,6 +136,71 @@ export const MultiplayerGameSettings: React.FC = (): ReactElement => {
         updateGameSettings(a);
       };
 
+
+      const handleAllowOpsChange = (value: boolean) => {
+        setAllowOpsValue(value);
+        setAllowOps(value);
+        let a = gameConfiguration;
+        a.songConfiguration.allowOps = value;
+        updateGameSettings(a);
+      };
+    
+      const handleAllowEdsChange = (value: boolean) => {
+        setAllowEdsValue(value);
+        setAllowEds(value);
+        let a = gameConfiguration;
+        a.songConfiguration.allowEds = value;
+        updateGameSettings(a);
+      };
+    
+      const handleAllowInsChange = (value: boolean) => {
+        setAllowInsValue(value);
+        setAllowIns(value);
+        let a = gameConfiguration;
+        a.songConfiguration.allowIns = value;
+        updateGameSettings(a);
+      };
+    
+      const handleAllowMovieChange = (value: boolean) => {
+        setAllowMovieValue(value);
+        setAllowMovie(value);
+        let a = gameConfiguration;
+        a.allowMovie = value;
+        updateGameSettings(a);
+      };
+    
+      const handleAllowOvaChange = (value: boolean) => {
+        setAllowOvaValue(value);
+        setAllowOva(value);
+        let a = gameConfiguration;
+        a.allowOva = value;
+        updateGameSettings(a);
+      };
+    
+      const handleAllowTvChange = (value: boolean) => {
+        setAllowTvValue(value);
+        setAllowTv(value);
+        let a = gameConfiguration;
+        a.allowTv = value;
+        updateGameSettings(a);
+      };
+    
+      const handleAllowMusicChange = (value: boolean) => {
+        setAllowMusicValue(value);
+        setAllowMusic(value);
+        let a = gameConfiguration;
+        a.allowMusic = value;
+        updateGameSettings(a);
+      };
+    
+      const handleAllowSpecialChange = (value: boolean) => {
+        setAllowSpecialValue(value);
+        setAllowSpecial(value);
+        let a = gameConfiguration;
+        a.allowSpecial = value;
+        updateGameSettings(a);
+      };
+
      const createNewPreset = (name: string, gameConfiguration: GameConfiguration) => {
         setConfigPresets((configPresets) => {
           configPresets.presets.set(name, { 
@@ -95,7 +210,15 @@ export const MultiplayerGameSettings: React.FC = (): ReactElement => {
             minRating: gameConfiguration.minRating,
             maxRating: gameConfiguration.maxRating,
             minReleaseYear: gameConfiguration.minReleaseYear,
-            maxReleaseYear: gameConfiguration.maxReleaseYear
+            maxReleaseYear: gameConfiguration.maxReleaseYear,
+            imageQuestions: gameConfiguration.imageQuestions,
+            songQuestions: gameConfiguration.songQuestions,
+            allowMovie: gameConfiguration.allowMovie,
+            allowMusic: gameConfiguration.allowMusic,
+            allowOva: gameConfiguration.allowOva,
+            allowSpecial: gameConfiguration.allowSpecial,
+            allowTv: gameConfiguration.allowTv,
+            songConfiguration: gameConfiguration.songConfiguration
           });
           setItem('config-presets', superjson.stringify(configPresets));
           return configPresets;
@@ -127,6 +250,24 @@ export const MultiplayerGameSettings: React.FC = (): ReactElement => {
           setDiversifyAnime(preset.diversifyAnime);
           setQuestionNumberValue(preset.numberOfQuestions);
           setQuestionNumber(preset.numberOfQuestions);
+          setImageQuestions(preset.imageQuestions);
+          setSongQuestions(preset.songQuestions);
+          setAllowEds(preset.songConfiguration.allowEds ?? true);
+          setAllowEdsValue(preset.songConfiguration.allowEds ?? true);
+          setAllowIns(preset.songConfiguration.allowIns ?? true);
+          setAllowInsValue(preset.songConfiguration.allowIns ?? true);
+          setAllowOps(preset.songConfiguration.allowOps ?? true);
+          setAllowOpsValue(preset.songConfiguration.allowOps ?? true);
+          setAllowMovie(preset.allowMovie ?? true)
+          setAllowMovieValue(preset.allowMovie ?? true);
+          setAllowTv(preset.allowTv ?? true);
+          setAllowTvValue(preset.allowTv ?? true);
+          setAllowMusic(preset.allowMusic ?? true);
+          setAllowMusicValue(preset.allowMusic ?? true);
+          setAllowOva(preset.allowOva ?? true);
+          setAllowOvaValue(preset.allowOva ?? true);
+          setAllowSpecial(preset.allowSpecial ?? true);
+          setAllowSpecialValue(preset.allowSpecial ?? true);
           updateGameSettings(preset);
           close();
         }
@@ -150,7 +291,7 @@ export const MultiplayerGameSettings: React.FC = (): ReactElement => {
         else
         {
           setConfigPresets((configPresets) => {
-            configPresets.presets.set('default', { questionTimeout: 20, numberOfQuestions: 10, diversifyAnime: false, minRating: 0, maxRating: 10, minReleaseYear: 1970, maxReleaseYear: 2025})
+            configPresets.presets.set('default', GetDefaultConfiguration())
             return configPresets;
           });
         }
@@ -164,6 +305,7 @@ export const MultiplayerGameSettings: React.FC = (): ReactElement => {
           setAnimeRatingsRangeValues([gameConfiguration.minRating, gameConfiguration.maxRating]);
           setAnimeYearsRangeValues([gameConfiguration.minReleaseYear, gameConfiguration.maxReleaseYear]);
           setDiversifyAnimeValue(gameConfiguration.diversifyAnime);
+          setImageQuestionsValue(gameConfiguration.imageQuestions);
         }
       }, [gameConfiguration])
 
@@ -180,11 +322,29 @@ export const MultiplayerGameSettings: React.FC = (): ReactElement => {
                 <Text size="sm">{t('NumberOfQuestionsLabel')}</Text>
                 <Slider disabled={!isLobbyLeader} value={questionNumberValue} onChangeEnd={handleQuestionNumberRangeChange} label={(value) => `${value}`} min={5} max={30} marks={[{ value: 5 }, { value: 20 }, { value: 30 }]} />
               </Fieldset>
+              <Fieldset legend={t('QuizTypesSettingsLabel')} className={classes.settingsFieldset}>
+                <Text size="sm">{t('ImageQuestionsLabel')}</Text>
+                <Slider value={imageQuestionsValue} onChangeEnd={handleImageQuestionsRangeChange} label={(value) => `${value}`} min={0} max={questionNumberValue} />
+                <Text size="sm">{t('SongQuestionsLabel')}</Text>
+                <Slider value={questionNumberValue - imageQuestionsValue} onChangeEnd={handleSongQuestionsRangeChange} label={(value) => `${value}`} min={0} max={questionNumberValue}/>
+              </Fieldset>
               <Fieldset disabled={!isLobbyLeader} legend={t('FilteringSettingsLabel')} className={classes.settingsFieldset}>
                 <Text size="sm">{t('AnimeYearsRangeLabel')}</Text>
                 <RangeSlider disabled={!isLobbyLeader} value={animeYearsRangeValues} onChange={handleAllowedYearsRangeChange} min={1970} max={2025} minRange={1}/>
                 <Text size="sm">{t('AnimeRatingsRangeLabel')}</Text>
                 <RangeSlider disabled={!isLobbyLeader} value={animeRatingsRangeValues} onChange={handleAllowedRatingRangeChange} min={0} max={10} minRange={1}/>
+              </Fieldset>
+              <Fieldset legend={t('AllowedAnimeTypesSettingsLabel')} className={classes.settingsFieldset}>
+                <Checkbox label={t('AllowTvLabel')} checked={allowTvValue} onChange={(event) => handleAllowTvChange(event.currentTarget.checked)}/>
+                <Checkbox label={t('AllowMovieLabel')} checked={allowMovieValue} onChange={(event) => handleAllowMovieChange(event.currentTarget.checked)}/>
+                <Checkbox label={t('AllowOvaLabel')} checked={allowOvaValue} onChange={(event) => handleAllowOvaChange(event.currentTarget.checked)}/>
+                <Checkbox label={t('AllowSpecialLabel')} checked={allowSpecialValue} onChange={(event) => handleAllowSpecialChange(event.currentTarget.checked)}/>
+                <Checkbox label={t('AllowMusicLabel')} checked={allowMusicValue} onChange={(event) => handleAllowMusicChange(event.currentTarget.checked)}/>
+              </Fieldset>
+              <Fieldset disabled={imageQuestionsValue == questionNumberValue} legend={t('AllowedSongTypesSettingsLabel')} className={classes.settingsFieldset}>
+                <Checkbox disabled={imageQuestionsValue == questionNumberValue} label={t('AllowOpsLabel')} checked={allowOpsValue} onChange={(event) => handleAllowOpsChange(event.currentTarget.checked)}/>
+                <Checkbox disabled={imageQuestionsValue == questionNumberValue} label={t('AllowEdsLabel')} checked={allowEdsValue} onChange={(event) => handleAllowEdsChange(event.currentTarget.checked)}/>
+                <Checkbox disabled={imageQuestionsValue == questionNumberValue} label={t('AllowInsLabel')} checked={allowInsValue} onChange={(event) => handleAllowInsChange(event.currentTarget.checked)}/>
               </Fieldset>
               <Fieldset disabled={!isLobbyLeader} legend={t('ExperimentalSettingsLabel')} className={classes.settingsFieldset}>
               <Checkbox
@@ -202,8 +362,11 @@ export const MultiplayerGameSettings: React.FC = (): ReactElement => {
               </Group>
               <Group justify="flex-end" mt="md">
                 <Text c={isReady ? 'green' : 'red'}>You are {isReady ? "ready" : "not ready"}</Text>
-                <Button loading={gameState == GameState.Starting} loaderProps={{ type: 'dots' }} onClick={() => handleReadyStatusChange(!isReady)}>{ isReady ? t('ReadyButton') : t('UnReadyButton')}</Button>
+                <Button loading={gameState == GameState.Starting} loaderProps={{ type: 'dots' }} onClick={() => handleReadyStatusChange(!isReady)}>{ isReady ? t('UnreadyButton') : t('ReadyButton')}</Button>
               </Group>
+            </Group>
+            <Group justify='flex-start' align='flex-end'>
+              <Button disabled={gameState == GameState.Starting} onClick={() => leaveCurrentGame()}>{t('LeaveGameButton')}</Button>
             </Group>
           </Container>
         </Flex>

@@ -4,7 +4,7 @@ import { AnimeAutocomplete } from "../AnimeAutocomplete/AnimeAutocomplete";
 import { AnimeAutocompleteConfig } from "../AnimeAutocompleteConfig/AnimeAutocompleteConfig";
 import { CiCircleCheck, CiCircleRemove, CiSquareCheck } from "react-icons/ci";
 import { MultiplayerGameContext } from "@/context/multiplayer-game-context";
-import { GameState, PlayerAnswer, QuestionResult } from "@/models/GameConfiguration";
+import { GameQuestionType, GameState, PlayerAnswer, QuestionResult } from "@/models/GameConfiguration";
 import { ImageLoader } from "../ImageLoader/ImageLoader";
 import classes from "./MultiplayerGamePlayroom.module.css"
 import { AnimeContext } from "@/context/anime-context";
@@ -12,6 +12,8 @@ import { useAnimeBase } from "@/hooks/use-anime-base";
 import { useMultiplayerGame } from "@/hooks/use-multiplayer-game";
 import { useTranslation } from "react-i18next";
 import { useInterval } from "@mantine/hooks";
+import { SongLoader } from "../SongLoader/SongLoader";
+import { VolumeConfigButton } from "../VolumeConfigButton/VolumeConfigButton";
 
 export const MultiplayerGamePlayroom: React.FC = (): ReactElement => {
 
@@ -36,11 +38,11 @@ export const MultiplayerGamePlayroom: React.FC = (): ReactElement => {
     const handleAnswerChange = (newAnswer: string) => {
         setCurrentAnswer({ choice: undefined, customChoice: newAnswer });
       };
-    const handleConfirmAnswer = () => {
+    const handleConfirmAnswer = (answer: string) => {
         let finalChoice: number | undefined;
-        if (currentAnswer.customChoice != undefined)
+        if (answer != undefined)
             {
-                let answerAnimeId = getAnimeIdFromName(currentAnswer.customChoice);
+                let answerAnimeId = getAnimeIdFromName(answer);
                 finalChoice = answerAnimeId;
             }
             else
@@ -48,7 +50,7 @@ export const MultiplayerGamePlayroom: React.FC = (): ReactElement => {
                 console.log("undefined custom answer!")
             }
             
-            answerQuestion({ customChoice: currentAnswer.customChoice, choice: finalChoice });
+            answerQuestion({ customChoice: answer, choice: finalChoice });
       };
 
     const updatePlayerResults = (results: PlayerAnswer[]) => {
@@ -132,7 +134,10 @@ export const MultiplayerGamePlayroom: React.FC = (): ReactElement => {
             </div>
             <div className={classes.imageBox}>
               <AspectRatio ratio={16 / 9} maw={1366} mah={768} style={{ flex: `0 0 ${768}` }} mx="auto">
-                <ImageLoader url={currentQuestion.question} loading={loading} setLoading={setLoading}/>
+              <div>
+                {currentQuestion.questionType == "Image" && <ImageLoader url={currentQuestion.question} loading={loading} setLoading={setLoading}/>}
+                {currentQuestion.questionType == "Song" && <SongLoader source={"https://files.catbox.moe/" + currentQuestion.question} start={0} duration={gameConfiguration.questionTimeout}/>}
+              </div>
               </AspectRatio>
             </div>
             <div className={classes.boxHidden}>
@@ -151,11 +156,12 @@ export const MultiplayerGamePlayroom: React.FC = (): ReactElement => {
           <>
             <Group className={classes.answerComponent}>
                 <AnimeAutocomplete
-                    className={classes.answerBox} data={animes} limit={25} value={currentAnswer.customChoice} onChange={handleAnswerChange}/>
+                    className={classes.answerBox} data={animes} limit={25} value={currentAnswer.customChoice} onChange={handleAnswerChange} onEnterPress={handleConfirmAnswer}/>
                     <AnimeAutocompleteConfig/>
+                    {currentQuestion.questionType == "Song" && <VolumeConfigButton/>}
             </Group>
             <Group justify='center'>
-              <Button size="md" maw={200} disabled={gameState != GameState.QuestionReceived} loading={gameState == GameState.QuestionAnswered} onClick={handleConfirmAnswer}>
+              <Button size="md" maw={200} disabled={gameState != GameState.QuestionReceived} loading={gameState == GameState.QuestionAnswered} onClick={() => handleConfirmAnswer(currentAnswer.customChoice ?? "")}>
                   {t('SendAnswerButton')}
               </Button>
             </Group>

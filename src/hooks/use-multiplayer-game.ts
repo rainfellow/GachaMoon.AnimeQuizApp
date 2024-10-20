@@ -19,12 +19,13 @@ export interface IMultiplayerGame {
     updateGameSettings: (gameConfiguration: GameConfiguration) => Promise<void>
     sendChatMessage: (message: string) => Promise<void>
     accountIdToName: (accountId: number) => string
+    leaveCurrentGame: () => Promise<void>
 }
 
 export const useMultiplayerGame = (): IMultiplayerGame => {
     const { account, accountInfo } = useContext(AuthContext);
     const { events, setGameSettings, setQuestionAnswered, setReadyForGame, getGameName, connectToLobby,
-        createNewGame, joinGame, leaveGame, sendMessage, getActiveGames } = MultiplayerHubConnector(account == null ? "" : account.token);
+        createNewGame, joinGame, leaveGame, sendMessage, getActiveGames, reconnectToGame } = MultiplayerHubConnector(account == null ? "" : account.token);
     const { isReady, setIsReady, gameState, setGameState,
       currentQuestion, setCurrentQuestion, currentAnswer, setCurrentAnswer, correctAnswers, setCorrectAnswers, 
       gameConfiguration, setGameConfiguration, lastAnswerData, setLastAnswerData, gameRecap, setGameRecap, gameName, setGameName, 
@@ -66,6 +67,14 @@ export const useMultiplayerGame = (): IMultiplayerGame => {
         updateChatLog({accountId: 0, message: "player " + accountId + " left"});
     }
 
+    const handlePlayerDisconnected = (accountId: number) => {
+        updateChatLog({accountId: 0, message: "player " + accountId + " lost connection"});
+    }
+
+    const handlePlayerReconnected = (accountId: number) => {
+        updateChatLog({accountId: 0, message: "player " + accountId + " reconnected"});
+    }
+
     const handleQuestionResultReceived = (questionResult: QuestionResult) => {
         setGameState(GameState.QuestionTransition)
         setLastAnswerData(questionResult)
@@ -92,7 +101,6 @@ export const useMultiplayerGame = (): IMultiplayerGame => {
         setGameName(getGameName() ?? "");
     }
     const handleGameCompleted = (event: GameCompletedEvent) => {
-        console.log("game completed event triggered")
         setGameState(GameState.Finished)
         setIsReady(true);
         //setCurrentQuestion(defaultQuestion);
@@ -100,7 +108,7 @@ export const useMultiplayerGame = (): IMultiplayerGame => {
         setCorrectAnswers(event.correct);
         setGameRecap(event.gameRecap);
     }
-    events(handleMessageReceived, handleAskQuestion, handleConfirmAnswerReceived, handleGameConfigurationUpdated, handlePlayerJoined, handlePlayerLeft, handleQuestionResultReceived, handleQuestionTransitionMessage, handleGameStarted, handleGameCompleted );
+    events(handleMessageReceived, handleAskQuestion, handleConfirmAnswerReceived, handleGameConfigurationUpdated, handlePlayerJoined, handlePlayerLeft, handlePlayerDisconnected, handlePlayerReconnected, handleQuestionResultReceived, handleQuestionTransitionMessage, handleGameStarted, handleGameCompleted );
 
     const loadAnime = async () => {
         if(!animeLoaded)
@@ -114,7 +122,29 @@ export const useMultiplayerGame = (): IMultiplayerGame => {
         await loadAnime().then(() => { 
             connectToLobby()?.catch(() => {
                 console.log("error while creating lobby")
-            }).then(() => { setGameState(GameState.Connected) }); 
+            }).then(async (result) => { 
+                if (result == null || result == undefined)
+                {
+                    console.log('connected to lobby')
+                    setGameState(GameState.Connected);
+                }
+                else
+                {
+                    console.log('reconnecting to ' + result)
+                    setGameState(GameState.Reconnecting);
+                    let game = await reconnectToGame(result);
+                    if (game.isSuccessful) { 
+                        console.log("game created"); 
+                        setGameState(GameState.Lobby);
+                        setIsLobbyLeader(false);
+                        setCurrentGamePlayers(game.players);
+                        setGameConfiguration(game.gameConfiguration);
+                    } 
+                    else {
+                        console.log("error while rejoining game"); 
+                    }
+                }
+            }); 
         });
     };
 
@@ -122,13 +152,12 @@ export const useMultiplayerGame = (): IMultiplayerGame => {
         createNewGame()
             .then((success: boolean) => {
                 if (success) { 
-                    console.log("game created"); 
                     setGameState(GameState.Lobby)
                     setCurrentGamePlayers([{accountId: account!.accountId, accountName: accountInfo!.accountName}])
                     setIsLobbyLeader(true);
                 } 
                 else {
-                    console.log("game failed"); 
+                    console.log("error while starting game"); 
                 }
                     
                 return success;
@@ -149,11 +178,11 @@ export const useMultiplayerGame = (): IMultiplayerGame => {
                     setGameConfiguration(result.gameConfiguration);
                 } 
                 else {
-                    console.log("game failed"); 
+                    console.log("error while joining game"); 
                 }
             })
             .catch(() => {
-                console.log("error while starting game")
+                console.log("error while joining game")
             });
     };
 
@@ -176,10 +205,6 @@ export const useMultiplayerGame = (): IMultiplayerGame => {
     const answerQuestion = (answer: GameAnswer) => {
         
         setQuestionAnswered(answer);
-        if (answer.choice == undefined || answer.choice == 0)
-        {
-            console.log('used custom answer! ' + answer.customChoice)
-        }
         setGameState(GameState.QuestionAnswered)
     }
 
@@ -194,5 +219,18 @@ export const useMultiplayerGame = (): IMultiplayerGame => {
         }
     }
 
-    return { connect, createGame, joinExistingGame, answerQuestion, loadActiveGamesList, setReadyStatus, updateGameSettings, sendChatMessage, accountIdToName };
+    const leaveCurrentGame = () => {
+        return leaveGame().then((x: boolean) => 
+        {
+            if (x) {
+                console.log('left game');
+                setGameState(GameState.None);
+            }
+            else {
+                console.log('failed to leave game');
+            }
+        })
+    }
+
+    return { connect, createGame, joinExistingGame, answerQuestion, loadActiveGamesList, setReadyStatus, updateGameSettings, sendChatMessage, accountIdToName, leaveCurrentGame };
 };

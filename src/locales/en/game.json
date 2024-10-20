@@ -74,5 +74,19 @@
     "ServerGameStatePlaying": "Playing",
     "ServerGameStateFinished": "Finished",
     "ServerGameStateError": "Error",
-    "GameChatSystemMessage": "[SYSTEM]"
+    "GameChatSystemMessage": "[SYSTEM]",
+    "LeaveGameButton": "Leave Game",
+    "QuizTypesSettingsLabel": "Quiz Types",
+    "ImageQuestionsLabel": "Number of screenshot questions",
+    "SongQuestionsLabel": "Number of song questions",
+    "AllowedAnimeTypesSettingsLabel": "Allowed anime types",
+    "AllowTvLabel": "TV",
+    "AllowMovieLabel": "Movie",
+    "AllowOvaLabel": "OVA",
+    "AllowSpecialLabel": "Special",
+    "AllowMusicLabel": "Music clip",
+    "AllowedSongTypesSettingsLabel": "Allowed song types",
+    "AllowOpsLabel": "Opening",
+    "AllowEdsLabel": "Ending",
+    "AllowInsLabel": "Insert"
 }

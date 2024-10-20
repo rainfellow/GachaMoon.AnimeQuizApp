@@ -1,7 +1,7 @@
 import { MultiplayerGameContext } from "@/context/multiplayer-game-context";
 import { ChatMessage } from "@/models/GameConfiguration";
 import { Button, Container, Group, Paper, ScrollArea, Space, Stack, Text, Textarea, UnstyledButton } from "@mantine/core";
-import { ReactElement, useContext, useEffect, useState } from "react";
+import { ReactElement, useContext, useEffect, useRef, useState } from "react";
 import classes from "./MultiplayerGameChat.module.css"
 import { useMultiplayerGame } from "@/hooks/use-multiplayer-game";
 import { useTranslation } from "react-i18next";
@@ -15,8 +15,11 @@ export const MultiplayerGameChat: React.FC = (): ReactElement => {
     const { ref, width, height } = useElementSize();
     const { t } = useTranslation('game');
 
+    const chatInputRef = useRef(null)
+
     const handleSendMessageButton = (message: string) => {
         sendChatMessage(message);
+        setNewMessage("");
     }
 
     const createChatElements = (chatLog: ChatMessage[]) => {
@@ -44,13 +47,20 @@ export const MultiplayerGameChat: React.FC = (): ReactElement => {
                 </Stack>
                 <Stack justify="flex-end">  
                     <Textarea
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                handleSendMessageButton(newMessage);
+                            }
+                        }}
+                        ref={chatInputRef}
                         size="md"
                         radius="md"
                         value={newMessage}
                         onChange={(event) => setNewMessage(event.currentTarget.value)}
                     />
                     <Group justify='flex-end'>
-                        <UnstyledButton size='xs' onClick={() => handleSendMessageButton(newMessage)}>
+                        <UnstyledButton size='xs' 
+                            onClick={() => handleSendMessageButton(newMessage)}>
                             {t('GameChatSendMessageButton')}
                         </UnstyledButton>
                     </Group>

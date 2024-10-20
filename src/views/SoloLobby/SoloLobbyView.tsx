@@ -1,7 +1,7 @@
 import { ReactElement, useContext, useEffect, useState } from 'react';
-import { AspectRatio, Button, Container, Flex, Image, Loader, Paper, Slider, Text, Stack, rem, Fieldset, Group, Badge, Card, Checkbox, RangeSlider, Drawer, ScrollArea, ActionIcon } from '@mantine/core';
+import { AspectRatio, Button, Container, Flex, Image, Loader, Paper, Slider, Text, Stack, rem, Fieldset, Group, Badge, Card, Checkbox, RangeSlider, Drawer, ScrollArea, ActionIcon, Space } from '@mantine/core';
 import { AnimeContext } from '@/context/anime-context';
-import { GameConfiguration, GameState, QuestionResult } from '@/models/GameConfiguration';
+import { GameConfiguration, GameQuestion, GameQuestionType, GameState, GetDefaultConfiguration, QuestionResult } from '@/models/GameConfiguration';
 import { SoloGameContext } from '../../context/solo-game-context';
 import { useSoloGame } from '../../hooks/use-solo-game';
 import { useAnimeBase } from '@/hooks/use-anime-base';
@@ -19,19 +19,22 @@ import { SettingsPresetsDrawer } from '@/components/SetingsPresetsDrawer/Setings
 import superjson from 'superjson';
 import { ImageLoader } from '@/components/ImageLoader/ImageLoader';
 import { GameRecapComponent } from '@/components/GameRecap/GameRecap';
+import { SongLoader } from '@/components/SongLoader/SongLoader';
+import { VolumeConfigButton } from '@/components/VolumeConfigButton/VolumeConfigButton';
 
 export const SoloLobbyView: React.FC = (): ReactElement => {
   const { t } = useTranslation('game');
-  const { isReady, setIsReady, gameState, gameConfiguration,
+  const { gameState, gameConfiguration,
     currentQuestion, setCurrentQuestion, currentAnswer, setCurrentAnswer, correctAnswers, setCorrectAnswers, lastAnswerData, 
-    setQuestionNumber, setQuestionTimeout, setDiversifyAnime, setAnimeAllowedRating, setAnimeAllowedYears, gameName, gameRecap } = useContext(SoloGameContext);
+    setQuestionNumber, setQuestionTimeout, setDiversifyAnime, setAnimeAllowedRating, setAnimeAllowedYears, gameName, gameRecap, setImageQuestions, setSongQuestions,
+    setAllowEds, setAllowOps, setAllowIns, setAllowMovie, setAllowMusic, setAllowOva, setAllowSpecial, setAllowTv } = useContext(SoloGameContext);
 
   
   const [opened, { open, close }] = useDisclosure(false);
 
   const [modalOpened, modalHandlers] = useDisclosure(false);
   
-  const { startSoloLobby, startSoloGame, answerQuestion } = useSoloGame();
+  const { connectToSoloLobby, startSoloGame, answerQuestion } = useSoloGame();
 
   const { animeLoaded, animes } = useContext(AnimeContext);
 
@@ -50,6 +53,23 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
   const [questionNumberValue, setQuestionNumberValue] = useState(gameConfiguration.numberOfQuestions);
   const [questionTimeoutValue, setQuestionTimeoutValue] = useState(gameConfiguration.questionTimeout);
 
+  //quiz type settings
+  
+  const [imageQuestionsValue, setImageQuestionsValue] = useState(gameConfiguration.imageQuestions);
+
+  //anime type filters
+  const [allowOvaValue, setAllowOvaValue] = useState(gameConfiguration.allowOva);
+  const [allowMusicValue, setAllowMusicValue] = useState(gameConfiguration.allowMusic);
+  const [allowTvValue, setAllowTvValue] = useState(gameConfiguration.allowTv);
+  const [allowMovieValue, setAllowMovieValue] = useState(gameConfiguration.allowMovie);
+  const [allowSpecialValue, setAllowSpecialValue] = useState(gameConfiguration.allowSpecial);
+
+  //song type filters
+
+  const [allowOpsValue, setAllowOpsValue] = useState(gameConfiguration.songConfiguration.allowOps);
+  const [allowEdsValue, setAllowEdsValue] = useState(gameConfiguration.songConfiguration.allowEds);
+  const [allowInsValue, setAllowInsValue] = useState(gameConfiguration.songConfiguration.allowIns);
+
   //anime filters
   const [animeYearsRangeValues, setAnimeYearsRangeValues] = useState<[number, number]>([gameConfiguration.minReleaseYear, gameConfiguration.maxReleaseYear]);
   const [animeRatingsRangeValues, setAnimeRatingsRangeValues] = useState<[number, number]>([gameConfiguration.minRating, gameConfiguration.maxRating]);
@@ -65,6 +85,28 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
   const handleQuestionNumberRangeChange = (value: number) => {
     setQuestionNumberValue(value);
     setQuestionNumber(value);
+    if (imageQuestionsValue > value)
+    {
+      setImageQuestionsValue(value);
+      setImageQuestions(value);
+      setSongQuestions(0);
+    }
+    else
+    {
+      setSongQuestions(value - imageQuestionsValue);
+    }
+  };
+
+  const handleImageQuestionsRangeChange = (value: number) => {
+    setImageQuestionsValue(value);
+    setImageQuestions(value);
+    setSongQuestions(questionNumberValue - value);
+  };
+
+  const handleSongQuestionsRangeChange = (value: number) => {
+    setImageQuestionsValue(questionNumberValue - value);
+    setImageQuestions(questionNumberValue - value);
+    setSongQuestions(value);
   };
 
   const handleAllowedYearsRangeChange = (value: [number, number]) => {
@@ -82,14 +124,54 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
     setDiversifyAnime(value);
   };
 
+  const handleAllowOpsChange = (value: boolean) => {
+    setAllowOpsValue(value);
+    setAllowOps(value);
+  };
+
+  const handleAllowEdsChange = (value: boolean) => {
+    setAllowEdsValue(value);
+    setAllowEds(value);
+  };
+
+  const handleAllowInsChange = (value: boolean) => {
+    setAllowInsValue(value);
+    setAllowIns(value);
+  };
+
+  const handleAllowMovieChange = (value: boolean) => {
+    setAllowMovieValue(value);
+    setAllowMovie(value);
+  };
+
+  const handleAllowOvaChange = (value: boolean) => {
+    setAllowOvaValue(value);
+    setAllowOva(value);
+  };
+
+  const handleAllowTvChange = (value: boolean) => {
+    setAllowTvValue(value);
+    setAllowTv(value);
+  };
+
+  const handleAllowMusicChange = (value: boolean) => {
+    setAllowMusicValue(value);
+    setAllowMusic(value);
+  };
+
+  const handleAllowSpecialChange = (value: boolean) => {
+    setAllowSpecialValue(value);
+    setAllowSpecial(value);
+  };
+
   const handleAnswerChange = (newAnswer: string) => {
     setCurrentAnswer({ choice: undefined, customChoice: newAnswer });
   };
-  const handleConfirmAnswer = () => {
+  const handleConfirmAnswer = (answer: string) => {
     let finalChoice: number | undefined;
-    if (currentAnswer.customChoice != undefined)
+    if (answer != undefined)
       {
-        let answerAnimeId = getAnimeIdFromName(currentAnswer.customChoice);
+        let answerAnimeId = getAnimeIdFromName(answer);
         finalChoice = answerAnimeId;
       }
       else
@@ -97,7 +179,7 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
         console.log("undefined custom answer!")
       }
       
-      answerQuestion({ customChoice: currentAnswer.customChoice, choice: finalChoice });
+      answerQuestion({ customChoice: answer, choice: finalChoice });
     
   };
 
@@ -110,7 +192,15 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
           minRating: gameConfiguration.minRating,
           maxRating: gameConfiguration.maxRating,
           minReleaseYear: gameConfiguration.minReleaseYear,
-          maxReleaseYear: gameConfiguration.maxReleaseYear
+          maxReleaseYear: gameConfiguration.maxReleaseYear,
+          imageQuestions: gameConfiguration.imageQuestions,
+          songQuestions: gameConfiguration.songQuestions,
+          allowMovie: gameConfiguration.allowMovie,
+          allowMusic: gameConfiguration.allowMusic,
+          allowOva: gameConfiguration.allowOva,
+          allowSpecial: gameConfiguration.allowSpecial,
+          allowTv: gameConfiguration.allowTv,
+          songConfiguration: gameConfiguration.songConfiguration
         });
         setItem('config-presets', superjson.stringify(configPresets));
         return configPresets;
@@ -137,6 +227,14 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
         handleAllowedYearsRangeChange([preset.minReleaseYear, preset.maxReleaseYear]);
         handleDiversifyChange(preset.diversifyAnime);
         handleQuestionNumberRangeChange(preset.numberOfQuestions);
+        handleAllowOpsChange(preset.songConfiguration.allowOps ?? true);
+        handleAllowEdsChange(preset.songConfiguration.allowEds ?? true);
+        handleAllowInsChange(preset.songConfiguration.allowIns ?? true);
+        handleAllowMovieChange(preset.allowMovie ?? true);
+        handleAllowTvChange(preset.allowTv ?? true);
+        handleAllowOvaChange(preset.allowOva ?? true);
+        handleAllowMusicChange(preset.allowMusic ?? true);
+        handleAllowSpecialChange(preset.allowSpecial ?? true);
         close();
       }
       else
@@ -151,7 +249,7 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
   }
 
   useEffect(() => {
-    startSoloLobby()
+    connectToSoloLobby()
     let configs = getItem('config-presets');
     if (configs != undefined)
     {
@@ -164,7 +262,7 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
     else
     {
       setConfigPresets((configPresets) => {
-        configPresets.presets.set('default', { questionTimeout: 20, numberOfQuestions: 10, diversifyAnime: false, minRating: 0, maxRating: 10, minReleaseYear: 1970, maxReleaseYear: 2025})
+        configPresets.presets.set('default', GetDefaultConfiguration())
         return configPresets;
       });
     }
@@ -218,6 +316,28 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
     )
   }
 
+  const QuestionElement = (question: GameQuestion) => {
+    if(question.questionType == "Image")
+    {
+      return (
+        <AspectRatio ratio={16 / 9} maw={1280} mah={720} style={{ flex: `0 0 ${768}`}} mx="auto">
+        <ImageLoader url={currentQuestion.question} loading={loading} setLoading={setLoading}/>
+        </AspectRatio>
+      )
+    }
+    else if(question.questionType == "Song")
+    {
+      return (
+        <Group justify='center' align='center' className={classes.musicBox}>
+        <SongLoader source={"https://files.catbox.moe/" + currentQuestion.question} start={0} duration={gameConfiguration.questionTimeout}/>
+        </Group>
+      )
+    }
+    else
+    {
+      console.log('error type: ' + question.questionType)
+    }
+  }
 
   function settingsScreen() {
     return (
@@ -234,6 +354,12 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
                 <Text size="sm">{t('NumberOfQuestionsLabel')}</Text>
                 <Slider value={questionNumberValue} onChangeEnd={handleQuestionNumberRangeChange} label={(value) => `${value}`} min={5} max={30} marks={[{ value: 5 }, { value: 20 }, { value: 30 }]} />
               </Fieldset>
+              <Fieldset legend={t('QuizTypesSettingsLabel')} className={classes.settingsFieldset}>
+                <Text size="sm">{t('ImageQuestionsLabel')}</Text>
+                <Slider value={imageQuestionsValue} onChangeEnd={handleImageQuestionsRangeChange} label={(value) => `${value}`} min={0} max={questionNumberValue} />
+                <Text size="sm">{t('SongQuestionsLabel')}</Text>
+                <Slider value={questionNumberValue - imageQuestionsValue} onChangeEnd={handleSongQuestionsRangeChange} label={(value) => `${value}`} min={0} max={questionNumberValue}/>
+              </Fieldset>
               <Fieldset legend={t('FilteringSettingsLabel')} className={classes.settingsFieldset}>
                 <Text size="sm">{t('AnimeYearsRangeLabel')}</Text>
                 <RangeSlider value={animeYearsRangeValues} onChange={handleAllowedYearsRangeChange} min={1970} max={2025} minRange={1}/>
@@ -246,6 +372,18 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
                 checked={diversifyAnimeValue}
                 onChange={(event) => handleDiversifyChange(event.currentTarget.checked)}
               />
+              </Fieldset>
+              <Fieldset legend={t('AllowedAnimeTypesSettingsLabel')} className={classes.settingsFieldset}>
+                <Checkbox label={t('AllowTvLabel')} checked={allowTvValue} onChange={(event) => handleAllowTvChange(event.currentTarget.checked)}/>
+                <Checkbox label={t('AllowMovieLabel')} checked={allowMovieValue} onChange={(event) => handleAllowMovieChange(event.currentTarget.checked)}/>
+                <Checkbox label={t('AllowOvaLabel')} checked={allowOvaValue} onChange={(event) => handleAllowOvaChange(event.currentTarget.checked)}/>
+                <Checkbox label={t('AllowSpecialLabel')} checked={allowSpecialValue} onChange={(event) => handleAllowSpecialChange(event.currentTarget.checked)}/>
+                <Checkbox label={t('AllowMusicLabel')} checked={allowMusicValue} onChange={(event) => handleAllowMusicChange(event.currentTarget.checked)}/>
+              </Fieldset>
+              <Fieldset disabled={imageQuestionsValue == questionNumberValue} legend={t('AllowedSongTypesSettingsLabel')} className={classes.settingsFieldset}>
+                <Checkbox disabled={imageQuestionsValue == questionNumberValue} label={t('AllowOpsLabel')} checked={allowOpsValue} onChange={(event) => handleAllowOpsChange(event.currentTarget.checked)}/>
+                <Checkbox disabled={imageQuestionsValue == questionNumberValue} label={t('AllowEdsLabel')} checked={allowEdsValue} onChange={(event) => handleAllowEdsChange(event.currentTarget.checked)}/>
+                <Checkbox disabled={imageQuestionsValue == questionNumberValue} label={t('AllowInsLabel')} checked={allowInsValue} onChange={(event) => handleAllowInsChange(event.currentTarget.checked)}/>
               </Fieldset>
             </Group>
             <Group justify='space-between'>
@@ -275,9 +413,7 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
             <div className={classes.boxHidden}>
             </div>
             <div className={classes.imageBox}>
-              <AspectRatio ratio={16 / 9} maw={1366} mah={768} style={{ flex: `0 0 ${768}` }} mx="auto">
-                <ImageLoader url={currentQuestion.question} loading={loading} setLoading={setLoading}/>
-              </AspectRatio>
+                {QuestionElement(currentQuestion)}
             </div>
             <div className={classes.boxHidden}>
               <Card>
@@ -295,11 +431,12 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
           <>
             <Group className={classes.answerComponent}>
                 <AnimeAutocomplete
-                    className={classes.answerBox} data={animes} limit={25} value={currentAnswer.customChoice} onChange={handleAnswerChange}/>
+                    className={classes.answerBox} data={animes} limit={25} value={currentAnswer.customChoice} onChange={handleAnswerChange} onEnterPress={handleConfirmAnswer}/>
                     <AnimeAutocompleteConfig/>
+                    {currentQuestion.questionType == "Song" && <VolumeConfigButton/>}
             </Group>
             <Group justify='center'>
-              <Button size="md" maw={200} disabled={gameState != GameState.QuestionReceived} loading={gameState == GameState.QuestionAnswered} onClick={handleConfirmAnswer}>
+              <Button size="md" maw={200} disabled={gameState != GameState.QuestionReceived} loading={gameState == GameState.QuestionAnswered} onClick={() => handleConfirmAnswer(currentAnswer.customChoice ?? "")}>
                   {t('SendAnswerButton')}
               </Button>
             </Group>
@@ -319,8 +456,9 @@ export const SoloLobbyView: React.FC = (): ReactElement => {
   }
 
   return (
-    <>
-    { gameState == GameState.Finished ? <GameRecapComponent gameName={gameName} gameRecap={gameRecap} correctAnswers={correctAnswers} isMultiplayer={false} /> : 
-      (gameState != GameState.None && animeLoaded) ? ((isInLobbyScreen()) ? settingsScreen() : playingScreen()) : loadingScreen()}</>
+    <div style={{overflowY: 'scroll'}}>
+    { gameState == GameState.Finished ? <GameRecapComponent gameName={gameName} gameRecap={gameRecap} correctAnswers={correctAnswers} isMultiplayer={false} findAccountNameById={() => { return "" }}/> : 
+      (gameState != GameState.None && animeLoaded) ? ((isInLobbyScreen()) ? settingsScreen() : playingScreen()) : loadingScreen()}
+    </div>
   );
 }

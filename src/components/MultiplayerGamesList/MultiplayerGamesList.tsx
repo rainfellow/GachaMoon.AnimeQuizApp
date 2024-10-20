@@ -1,7 +1,7 @@
 import { MultiplayerGameContext } from "@/context/multiplayer-game-context"
 import { useMultiplayerGame } from "@/hooks/use-multiplayer-game"
 import { GameDetails, GameState, ServerGameState } from "@/models/GameConfiguration"
-import { Badge, Button, Card, SimpleGrid, Text, Group, Stack } from "@mantine/core"
+import { Badge, Button, Card, SimpleGrid, Text, Group, Stack, LoadingOverlay } from "@mantine/core"
 import { ReactElement, useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -10,6 +10,7 @@ export const MultiplayerGamesList: React.FC = (): ReactElement => {
     const { activeGames, gameState} = useContext(MultiplayerGameContext);
     const [activeGameCards, setActiveGameCards] = useState<JSX.Element[]>();
     const { t } = useTranslation('game');
+    const [isLoading, setIsLoading] = useState(false);
 
     const [cardSpan, setCardSpan] = useState(4);
 
@@ -75,10 +76,15 @@ export const MultiplayerGamesList: React.FC = (): ReactElement => {
         setActiveGameCards(list);
     }
 
+    const handleGamesListLoading = () => {
+        setIsLoading(true);
+        loadActiveGamesList().then(() => setIsLoading(false));
+    }
+
     useEffect(() => {
         if (gameState == GameState.Connected)
         {
-            loadActiveGamesList();
+            handleGamesListLoading();
         }
     }, [gameState]);
 
@@ -89,8 +95,9 @@ export const MultiplayerGamesList: React.FC = (): ReactElement => {
     return (
     <>
     <Stack>
+        <LoadingOverlay visible={isLoading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
         <Group justify="flex-end">
-            <Button size="md" onClick={ () => loadActiveGamesList() }>{t('GamesListRefreshListButton')}</Button>
+            <Button size="md" onClick={ () => handleGamesListLoading() }>{t('GamesListRefreshListButton')}</Button>
             <Button size="md" onClick={ () => createGame() }>{t('GamesListCreateGameButton')}</Button>
         </Group>
         <SimpleGrid cols={cardSpan}>

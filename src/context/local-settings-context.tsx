@@ -7,18 +7,23 @@ export interface ILocalSettings {
     colorTheme: string
     animeAutocompleteSettings: AnimeAutocompleteSettings;
     language: string;
+    volume: number;
     setColorTheme: (colorTheme: string) => void
     setAnimeAutocompleteSettings: (animeAutocompleteSettings: AnimeAutocompleteSettings) => void
     setLanguage: (language: string) => void
+    setVolume: (volume: number) => void;
 }
 
 export const LocalSettingsContext = createContext<ILocalSettings>({
     colorTheme: "dark",
     animeAutocompleteSettings: { autocompleteLanguageCode: 'en', autocompleteBehaviour: AnimeAutocompleteOptionDisplay.Default, highlightText: false },
     language: "en",
+    volume: 50,
     setColorTheme: (colorTheme: string) => {},
     setAnimeAutocompleteSettings: (animeAutocompleteSettings: AnimeAutocompleteSettings) => {},
     setLanguage: (language: string) => {},
+    setVolume: (volume: number) => {},
+
 
 });
 
@@ -32,6 +37,7 @@ export const LocalSettingsContextProvider: React.FC<LocalSettingsProviderProps> 
     const { getItem, setItem } = useLocalStorage()
     const [colorTheme, setColorTheme] = useState<string>(getItem('color-theme') ?? "dark");
     const [language, setLanguage] = useState<string>(getItem('language') ?? "en");
+    const [volume, setVolume] = useState<number>(parseInt(getItem('volume') ?? '50') ?? 50);
     const autocompleteSettingsString = getItem('autocomplete-settings') ?? '';
     const [animeAutocompleteSettings, setAnimeAutocompleteSettings] = useState<AnimeAutocompleteSettings>(
          autocompleteSettingsString == '' ? { autocompleteLanguageCode: 'en', autocompleteBehaviour: AnimeAutocompleteOptionDisplay.Default, highlightText: false } : JSON.parse(autocompleteSettingsString));
@@ -40,6 +46,7 @@ export const LocalSettingsContextProvider: React.FC<LocalSettingsProviderProps> 
         colorTheme,
         animeAutocompleteSettings,
         language,
+        volume,
         setColorTheme: useCallback((colorTheme: string) => {
             setColorTheme(colorTheme);
             setItem('color-theme', colorTheme);
@@ -51,6 +58,10 @@ export const LocalSettingsContextProvider: React.FC<LocalSettingsProviderProps> 
         setLanguage: useCallback((language: string) => {
             setLanguage(language);
             setItem('language', language);
+        }, []),
+        setVolume: useCallback((volume: number) => {
+            setVolume(volume);
+            setItem('volume', volume.toString());
         }, []),
     };
     return (

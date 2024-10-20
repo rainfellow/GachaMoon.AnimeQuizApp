@@ -18,9 +18,9 @@ import { getAgeRatingTitle } from '@/utils/translation-utils';
 import { useAxios } from '@/hooks/use-axios';
 import { useDisclosure } from '@mantine/hooks';
 import { ReportAnimeBugModal } from '../ReportAnimeBugModal/ReportAnimeBugModal';
-import { useMultiplayerGame } from '@/hooks/use-multiplayer-game';
+import placeholder from '../../static/music_note.svg'
 
-export function GameRecapComponent(props: {gameRecap: GameRecap, correctAnswers: number, gameName: string, isMultiplayer: boolean}) {
+export function GameRecapComponent(props: {gameRecap: GameRecap, correctAnswers: number, gameName: string, isMultiplayer: boolean, findAccountNameById: (accountId: number) => string}) {
   const [slideIndex, setSlideIndex] = useState(0);
   const { account } = useAuth()
   const axios = useAxios();
@@ -30,7 +30,6 @@ export function GameRecapComponent(props: {gameRecap: GameRecap, correctAnswers:
   const [correctAnswersList, setCorrectAnswersList] = useState([{answer: 0, question: ""}]);
   const [feedbackOptions, setFeedbackOptions] = useState([{difficultyFeedback: 0, playabilityFeedback: 0}]);
 
-  const { accountIdToName } = useMultiplayerGame();
 
   const [bugModalOpened, { open, close }] = useDisclosure(false);
 
@@ -94,12 +93,12 @@ export function GameRecapComponent(props: {gameRecap: GameRecap, correctAnswers:
   const updatePlayerAnswersElements = (questionNumber: number) => {
     let playerAnswers = []
     for (const [key, value] of Object.entries(props.gameRecap.playerAnswersRecaps)) {
-      console.log(`${key}: ${value}`);
-      playerAnswers.push({accountId: Number(key), answerId: Number(value.playerAnswer), isCorrect: Boolean(value.isCorrect)})
+      console.log(`${key}: ${value[questionNumber].playerAnswer}`);
+      playerAnswers.push({accountId: Number(key), answerId: Number(value[questionNumber].playerAnswer), isCorrect: Boolean(value[questionNumber].isCorrect)})
     }
-    let elements = playerAnswers.map((x) => 
+    let elements = playerAnswers.filter(x => x.accountId != account?.accountId).map((x) => 
       <Group justify='space-between'>
-        <Text>{accountIdToName(x.accountId)}</Text>
+        <Text>{props.findAccountNameById(x.accountId)}</Text>
         {x.isCorrect
             ? <Badge color='green' size="xs" leftSection={<CiCircleCheck/>}>{getAnimeNameFromId(x.answerId)}</Badge>
             : <Badge color='red' size="xs" leftSection={<CiCircleRemove/>}>{getAnimeNameFromId(x.answerId)}</Badge>}
@@ -151,7 +150,8 @@ export function GameRecapComponent(props: {gameRecap: GameRecap, correctAnswers:
       setPlayabilityFeedbackValue("0");
       setSlides(props.gameRecap.correctAnswers.map((x) => (
         <Carousel.Slide key={x.question}>
-            <Image maw={1366} mah={768} fit="contain" src={x.question} />
+            {x.question.includes('fancaps') ? <Image maw={1366} mah={768} fit="contain" src={x.question} /> : 
+        <Group justify='center' className={classes.musicBox}><Image w={300} h={300} src={placeholder}/></Group> }
         </Carousel.Slide>
       )))
     }

@@ -8,15 +8,15 @@ import { useAnimeBase } from "./use-anime-base";
 import { config } from "chai";
 
 export interface ISoloGame {
-    startSoloLobby: () => Promise<void>;
+    connectToSoloLobby: () => Promise<void>;
     startSoloGame: () => Promise<void>;
     answerQuestion: (answer: GameAnswer) => void;
 }
 
 export const useSoloGame = (): ISoloGame => {
     const { account } = useAuth();
-    const { events, createGame, setGameSettings, setQuestionAnswered, setReadyForGame, getGameName } = SoloHubConnector(account == null ? "" : account.token);
-    const { isReady, setIsReady, gameState, setGameState,
+    const { events, startGame, connectToLobby, setQuestionAnswered, getGameName } = SoloHubConnector(account == null ? "" : account.token);
+    const { gameState, setGameState,
       currentQuestion, setCurrentQuestion, currentAnswer, setCurrentAnswer, correctAnswers, setCorrectAnswers, 
       gameConfiguration, setGameConfiguration, lastAnswerData, setLastAnswerData, gameRecap, setGameRecap, gameName, setGameName, 
       setQuestionNumber, setQuestionTimeout, setDiversifyAnime, setAnimeAllowedYears, setAnimeAllowedRating } = useContext(SoloGameContext);
@@ -28,12 +28,9 @@ export const useSoloGame = (): ISoloGame => {
         //
     }
 
-    const handleWaitUntilReady = () => { 
-        setGameState(GameState.Lobby)
-    }
-
     const handleAskQuestion = (question: GameQuestion) => {
         setGameState(GameState.QuestionReceived)
+        console.log("received question:" + question.question + " type:" + question.questionType);
         setCurrentQuestion(question);
     }
 
@@ -65,13 +62,12 @@ export const useSoloGame = (): ISoloGame => {
     const handleGameCompleted = (event: GameCompletedEvent) => {
         console.log("game completed event triggered")
         setGameState(GameState.Finished)
-        setIsReady(true);
         //setCurrentQuestion(defaultQuestion);
         //setCurrentAnswer(defaultAnswer);
         setCorrectAnswers(event.correct);
         setGameRecap(event.gameRecap);
     }
-    events(handleMessageReceived , handleWaitUntilReady, handleAskQuestion, handleConfirmAnswerReceived, handleQuestionResultReceived, handleQuestionTransitionMessage, handleGameStarted, handleGameCompleted );
+    events(handleMessageReceived, handleAskQuestion, handleConfirmAnswerReceived, handleQuestionResultReceived, handleQuestionTransitionMessage, handleGameStarted, handleGameCompleted );
 
     const loadAnime = async () => {
         if(!animeLoaded)
@@ -80,34 +76,27 @@ export const useSoloGame = (): ISoloGame => {
         }
     }
 
-    const startSoloLobby = async () => {        
+    const connectToSoloLobby = async () => {        
         await loadAnime().then(() => { 
-            createGame()?.catch(() => {
-                console.log("error while creating lobby")
+            connectToLobby()?.catch(() => {
+                console.log("error while joining solo lobby")
             }).then(() => { setGameState(GameState.Lobby) }); 
         });
     };
 
     const startSoloGame = async () => {        
         setGameState(GameState.Starting)
-        await setGameSettings(gameConfiguration)?.catch(() => {
+        await startGame(gameConfiguration)?.catch(() => {
             console.log("error while starting game")
         }).then(() => {
-            console.log("game settings set, starting...")
-            setIsReady(true);
-            setReadyForGame();
         });
     };
 
     const answerQuestion = (answer: GameAnswer) => {
         
         setQuestionAnswered(answer);
-        if (answer.choice == undefined || answer.choice == 0)
-        {
-            console.log('used custom answer! ' + answer.customChoice)
-        }
         setGameState(GameState.QuestionAnswered)
     }
 
-    return { startSoloLobby, startSoloGame, answerQuestion };
+    return { connectToSoloLobby, startSoloGame, answerQuestion };
 };
