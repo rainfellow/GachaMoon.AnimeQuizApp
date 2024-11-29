@@ -1,10 +1,12 @@
 import { Container, Divider, Flex, Group, Paper, Stack } from "@mantine/core"
 import { ReactElement, useState } from "react"
 import { CgProfile, CgList } from "react-icons/cg";
+import { BsPeople } from "react-icons/bs";
 import classes from "./AccountSettingsView.module.css"
 import AnimeListsConfiguration from "@/components/AnimeLists/AnimeListsConfiguration";
 import ProfileSettings from "@/components/ProfileSettings/ProfileSettings";
 import { useTranslation } from "react-i18next";
+import FriendsSettings from "@/components/FriendsSettings/FriendsSettings";
 
 export const AccountSettingsView: React.FC = (): ReactElement => {
     const { t } = useTranslation('settings');
@@ -14,6 +16,7 @@ export const AccountSettingsView: React.FC = (): ReactElement => {
     const linkData = [
     { label: "ProfileMenuButton", value: 'Profile', icon: CgProfile },
     { label: "AnimeListsMenuMutton", value: 'Anime Lists', icon: CgList }, 
+    { label: "FriendsMenuButton", value: 'Friends', icon: BsPeople }, 
     ];
 
     const links = linkData.map((item) => (
@@ -38,6 +41,7 @@ export const AccountSettingsView: React.FC = (): ReactElement => {
         return (
             <>{selectedLinkKey == 'Anime Lists' ? <AnimeListsConfiguration/> :
                selectedLinkKey == 'Profile' ? <ProfileSettings/> :
+               selectedLinkKey == 'Friends' ? <FriendsSettings/> :
                <></>}</>
         )
     }

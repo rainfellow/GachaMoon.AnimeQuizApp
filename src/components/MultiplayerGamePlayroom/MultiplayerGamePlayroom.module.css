@@ -1,15 +1,13 @@
 .imageBox {
     display: 'flex';
-    width: calc(50% + 500px);
-    max-width: 1000px;
     margin: 0 0;
   }
   
-  @media (min-width: 2000px) {
+  /* @media (min-width: 2000px) {
     .imageBox {
       width: 1000px;
     }
-  }
+  } */
   
   .box {
     width: 200px;

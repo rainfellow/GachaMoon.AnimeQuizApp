@@ -1,10 +1,10 @@
-import { AspectRatio, Badge, Button, Card, Group, Paper, Stack, Text } from "@mantine/core";
+import { ActionIcon, AspectRatio, Badge, Button, Card, Group, Paper, rem, Stack, Text } from "@mantine/core";
 import { ReactElement, useContext, useEffect, useState } from "react";
 import { AnimeAutocomplete } from "../AnimeAutocomplete/AnimeAutocomplete";
 import { AnimeAutocompleteConfig } from "../AnimeAutocompleteConfig/AnimeAutocompleteConfig";
 import { CiCircleCheck, CiCircleRemove, CiSquareCheck } from "react-icons/ci";
 import { MultiplayerGameContext } from "@/context/multiplayer-game-context";
-import { GameQuestionType, GameState, PlayerAnswer, QuestionResult } from "@/models/GameConfiguration";
+import { GameQuestion, GameQuestionType, GameState, PlayerAnswer, QuestionResult } from "@/models/GameConfiguration";
 import { ImageLoader } from "../ImageLoader/ImageLoader";
 import classes from "./MultiplayerGamePlayroom.module.css"
 import { AnimeContext } from "@/context/anime-context";
@@ -14,10 +14,17 @@ import { useTranslation } from "react-i18next";
 import { useInterval } from "@mantine/hooks";
 import { SongLoader } from "../SongLoader/SongLoader";
 import { VolumeConfigButton } from "../VolumeConfigButton/VolumeConfigButton";
+import { FooterContext } from "@/context/footer-context";
+import { BsFillSendFill } from "react-icons/bs";
+import { GameConfigurationContext } from "@/context/game-configuration-context";
 
 export const MultiplayerGamePlayroom: React.FC = (): ReactElement => {
 
     const [loading, setLoading] = useState(false);
+  
+    const [isBonusTime, setIsBonusTime] = useState(false);
+
+    const { setElement } = useContext(FooterContext);
 
     const { animeLoaded, animes } = useContext(AnimeContext);
 
@@ -25,13 +32,15 @@ export const MultiplayerGamePlayroom: React.FC = (): ReactElement => {
 
     const [playerResultsElements, setPlayerResultsElements] = useState<JSX.Element[]>();
 
-    const interval = useInterval(() => setQuestionTimer((s: number) => Math.max(s - 1, 0)), 1000);
+    const interval = useInterval(() => setQuestionTimer((s: number) => { setIsBonusTime(s <= gameConfiguration.questionBonusTime); return Math.max(s - 1, 0) }), 1000);
 
     const { answerQuestion, accountIdToName } = useMultiplayerGame();
 
     const { t } = useTranslation('game');
 
-    const { currentQuestion, correctAnswers, gameState, currentAnswer, setCurrentAnswer, lastAnswerData, gameConfiguration, playerAnswers } = useContext(MultiplayerGameContext);
+    const { currentQuestion, correctAnswers, gameState, currentAnswer, setCurrentAnswer, lastAnswerData, playerAnswers } = useContext(MultiplayerGameContext);
+
+    const { gameConfiguration } = useContext(GameConfigurationContext);
 
     const [questionTimer, setQuestionTimer] = useState(gameConfiguration.questionTimeout);
 
@@ -83,6 +92,15 @@ export const MultiplayerGamePlayroom: React.FC = (): ReactElement => {
     }, [gameState])
 
     useEffect(() => {
+      setElement(
+        <>
+          <AnimeAutocompleteConfig/>
+          <VolumeConfigButton/>
+        </>
+      );
+    }, [])
+
+    useEffect(() => {
       updatePlayerResults(playerAnswers);
     }, [playerAnswers])
   
@@ -118,6 +136,29 @@ export const MultiplayerGamePlayroom: React.FC = (): ReactElement => {
       )
     }
 
+    const QuestionElement = (question: GameQuestion) => {
+      if (question.questionType == "Image")
+      {
+        return (
+          <AspectRatio ratio={16 / 9} maw={1280} mah={720} style={{ flex: `0 0 ${720}`}} mx="auto">
+          <ImageLoader url={currentQuestion.question} isBonusTime={isBonusTime} loading={loading} setLoading={setLoading}/>
+          </AspectRatio>
+        )
+      }
+      else if (question.questionType == "Song")
+      {
+        return (
+          <Group justify='center' align='center' className={classes.musicBox}>
+          <SongLoader source={"https://cdn.gachamoon.xyz/gachamoon-audio/" + currentQuestion.question} start={currentQuestion.songStartTime ?? 0} duration={gameConfiguration.questionTimeout}/>
+          </Group>
+        )
+      }
+      else
+      {
+        console.log('error type: ' + question.questionType)
+      }
+    }
+
     return (
         <Paper>
         <Stack>
@@ -133,12 +174,7 @@ export const MultiplayerGamePlayroom: React.FC = (): ReactElement => {
               </Card>
             </div>
             <div className={classes.imageBox}>
-              <AspectRatio ratio={16 / 9} maw={1366} mah={768} style={{ flex: `0 0 ${768}` }} mx="auto">
-              <div>
-                {currentQuestion.questionType == "Image" && <ImageLoader url={currentQuestion.question} loading={loading} setLoading={setLoading}/>}
-                {currentQuestion.questionType == "Song" && <SongLoader source={"https://files.catbox.moe/" + currentQuestion.question} start={0} duration={gameConfiguration.questionTimeout}/>}
-              </div>
-              </AspectRatio>
+              {QuestionElement(currentQuestion)}
             </div>
             <div className={classes.boxHidden}>
               <Card>
@@ -156,14 +192,16 @@ export const MultiplayerGamePlayroom: React.FC = (): ReactElement => {
           <>
             <Group className={classes.answerComponent}>
                 <AnimeAutocomplete
-                    className={classes.answerBox} data={animes} limit={25} value={currentAnswer.customChoice} onChange={handleAnswerChange} onEnterPress={handleConfirmAnswer}/>
-                    <AnimeAutocompleteConfig/>
-                    {currentQuestion.questionType == "Song" && <VolumeConfigButton/>}
-            </Group>
-            <Group justify='center'>
-              <Button size="md" maw={200} disabled={gameState != GameState.QuestionReceived} loading={gameState == GameState.QuestionAnswered} onClick={() => handleConfirmAnswer(currentAnswer.customChoice ?? "")}>
-                  {t('SendAnswerButton')}
-              </Button>
+                    className={classes.answerBox} data={animes} limit={20} value={currentAnswer.customChoice} onChange={handleAnswerChange} onEnterPress={handleConfirmAnswer}/>
+                <ActionIcon
+                  size={38}
+                  disabled={gameState != GameState.QuestionReceived} 
+                  loading={gameState == GameState.QuestionAnswered} 
+                  onClick={() => handleConfirmAnswer(currentAnswer.customChoice ?? "")}
+                  variant="default"
+                  aria-label="Configure gameplay settings">
+                  <BsFillSendFill style={{ width: rem(22), height: rem(22) }} />
+                </ActionIcon>
             </Group>
           </>
         }

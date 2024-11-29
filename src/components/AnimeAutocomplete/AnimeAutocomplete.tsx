@@ -4,6 +4,7 @@ import { AnimeData } from '@/models/Anime';
 import { LocalSettingsContext } from '@/context/local-settings-context';
 import { AnimeAutocompleteOptionDisplay, AnimeAutocompleteSettings } from '@/models/GameplaySettings';
 import { useTranslation } from 'react-i18next';
+import { useViewportSize } from '@mantine/hooks';
 
 interface AnimeFilteredData {
     animeData: AnimeData,
@@ -82,6 +83,7 @@ function getFilteredOptions(data: AnimeData[], searchQuery: string, limit: numbe
 
 export function AnimeAutocomplete(props: { className: string, data: AnimeData[] | undefined, limit: number, value: string | undefined, onChange: (value: string) => void, onEnterPress: (value: string) => void }) {
   const { animeAutocompleteSettings } = useContext(LocalSettingsContext);
+  const { height, width } = useViewportSize();
   const defaultFilteredAnime: AnimeFilteredData = {animeData: {aliases: [], animeId: 0, animeName: "", malId: 0, releaseDate: "", meanScore: 0, ageRating: "", animeType: "", episodeCount: 0}, filteredAnimeString: ""};
   const combobox = useCombobox();
   const filteredOptions = getFilteredOptions(props.data != undefined ? props.data : [], props.value ?? '', props.limit, animeAutocompleteSettings);
@@ -92,6 +94,10 @@ export function AnimeAutocomplete(props: { className: string, data: AnimeData[] 
       {item.filteredAnimeString}
     </Combobox.Option>
   ));
+
+  const calcOptionsHeight = (viewPortHeight: number) => {
+    return Math.min(300, viewPortHeight / 2.5);
+  }
 
   return (
     <div className={props.className}>
@@ -134,7 +140,7 @@ export function AnimeAutocomplete(props: { className: string, data: AnimeData[] 
       </Combobox.Target>
 
       <Combobox.Dropdown>
-        <Combobox.Options>
+        <Combobox.Options mah={calcOptionsHeight(height)}>
           {options.length === 0 ? <Combobox.Empty>{t('AnimeAutocompleteEmptyLabel')}</Combobox.Empty> : options}
         </Combobox.Options>
       </Combobox.Dropdown>

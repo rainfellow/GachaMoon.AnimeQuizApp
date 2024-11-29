@@ -18,6 +18,12 @@
     "ProfileUpdateSuccess": "Настройки профиля успешно обновлены.",
     "ProfileUpdateError": "Ошибка при обновлении настроек профиля.",
     "AnimeListUpdateError": "Ошибка",
-    "AnimeListUpdateErrorDescription": "Ошибка при загрузке списка аниме. Пожалуйста, проверьте корректность введенного имени пользователя."
+    "AnimeListUpdateErrorDescription": "Ошибка при загрузке списка аниме. Пожалуйста, проверьте корректность введенного имени пользователя.",
+    "FriendsMenuButton": "Друзья",
+    "FriendRequestsTableNameColumn": "Пользователь",
+    "IncomingFriendRequestsTabTitle": "Входящие",
+    "OutgoingFriendRequestsTabTitle": "Исходящие",
+    "NoIncomingFriendRequestsPlaceholder": "Входящих запросов дружбы не найдено.",
+    "NoOutgoingFriendRequestsPlaceholder": "Исходящих запросов дружбы не найдено."
     
 }

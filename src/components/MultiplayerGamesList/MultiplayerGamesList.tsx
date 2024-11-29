@@ -1,7 +1,8 @@
 import { MultiplayerGameContext } from "@/context/multiplayer-game-context"
 import { useMultiplayerGame } from "@/hooks/use-multiplayer-game"
-import { GameDetails, GameState, ServerGameState } from "@/models/GameConfiguration"
-import { Badge, Button, Card, SimpleGrid, Text, Group, Stack, LoadingOverlay } from "@mantine/core"
+import { GameDetails, GameState, GameType, ServerGameState } from "@/models/GameConfiguration"
+import { Badge, Button, Card, SimpleGrid, Text, Group, Stack, LoadingOverlay, Modal } from "@mantine/core"
+import { useDisclosure } from "@mantine/hooks"
 import { ReactElement, useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -11,6 +12,9 @@ export const MultiplayerGamesList: React.FC = (): ReactElement => {
     const [activeGameCards, setActiveGameCards] = useState<JSX.Element[]>();
     const { t } = useTranslation('game');
     const [isLoading, setIsLoading] = useState(false);
+
+    
+    const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
 
     const [cardSpan, setCardSpan] = useState(4);
 
@@ -32,7 +36,7 @@ export const MultiplayerGamesList: React.FC = (): ReactElement => {
                 console.log('failed to get game state')
                 return 'black' 
             } 
-        } 
+        }
     }
 
     const gameStatusToString = (status: ServerGameState) => {
@@ -94,11 +98,25 @@ export const MultiplayerGamesList: React.FC = (): ReactElement => {
 
     return (
     <>
+    <Modal opened={modalOpened} onClose={closeModal} title="Authentication" centered w={200} h={350}>
+        <SimpleGrid cols={2} spacing='xs'>
+            <Stack align='flex-start' flex='grow'>
+                <Button onClick={() => createGame(GameType.Standard)}>
+                    Standard
+                </Button>
+            </Stack>
+            <Stack align='flex-start' flex='grow'>
+                <Button onClick={() => createGame(GameType.Standoff)}>
+                    Standoff
+                </Button>
+            </Stack>
+        </SimpleGrid>
+    </Modal>
     <Stack>
         <LoadingOverlay visible={isLoading} zIndex={1000} overlayProps={{ radius: "sm", blur: 2 }} />
         <Group justify="flex-end">
             <Button size="md" onClick={ () => handleGamesListLoading() }>{t('GamesListRefreshListButton')}</Button>
-            <Button size="md" onClick={ () => createGame() }>{t('GamesListCreateGameButton')}</Button>
+            <Button size="md" onClick={ () => openModal() }>{t('GamesListCreateGameButton')}</Button>
         </Group>
         <SimpleGrid cols={cardSpan}>
             {gameState == GameState.Connected && activeGameCards != undefined && activeGameCards?.length > 0 && activeGameCards}

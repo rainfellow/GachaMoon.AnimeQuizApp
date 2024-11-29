@@ -18,6 +18,12 @@
     "ProfileUpdateSuccess": "Profile settings updated successfully.",
     "ProfileUpdateError": "Error. Account settings were not updated.",
     "AnimeListUpdateError": "Error.",
-    "AnimeListUpdateErrorDescription": "Error while loading your anime list. Please check that the username is correct."
+    "AnimeListUpdateErrorDescription": "Error while loading your anime list. Please check that the username is correct.",
+    "FriendsMenuButton": "Friends",
+    "FriendRequestsTableNameColumn": "Account",
+    "IncomingFriendRequestsTabTitle": "Incoming",
+    "OutgoingFriendRequestsTabTitle": "Outgoing",
+    "NoIncomingFriendRequestsPlaceholder": "No pending friend requests are found.",
+    "NoOutgoingFriendRequestsPlaceholder": "No outgoing pending friend requests are found."
     
 }

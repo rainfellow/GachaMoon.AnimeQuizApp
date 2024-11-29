@@ -12,8 +12,8 @@ const MainAppContent = () => {
     <div className={classes.content}>
       <Suspense fallback={<Loader color="primary" />}>
         <AnimeContextProvider>
-          <Notifications />
-          <Outlet/>
+              <Notifications />
+              <Outlet/>
         </AnimeContextProvider>
       </Suspense>
     </div>

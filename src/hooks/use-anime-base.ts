@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { AnimeContext } from "@/context/anime-context";
 import { useAxios } from "./use-axios";
 import { AxiosResponse } from "axios";
-import { AnimeData, AnimeResponse } from "@/models/Anime";
+import { AnimeData, AnimeResponse, UserAnimeListData } from "@/models/Anime";
 import { LocalSettingsContext } from "@/context/local-settings-context";
 import { AnimeAutocompleteOptionDisplay } from "@/models/GameplaySettings";
 
@@ -11,10 +11,11 @@ export interface IAnimeBase {
     getAnimeNameFromId: (id: number) => string | undefined
     getAnimeFromId: (id: number) => AnimeData | undefined
     loadAnimes: () => Promise<void>
+    loadUserAnimeList: () => Promise<UserAnimeListData>
 }
 
 export const useAnimeBase = (): IAnimeBase => {
-    const { animeLoaded, animes, animeNames, animesFlattened, setAnimeLoaded, setAnimeNames, setAnimes, setAnimesFlattened } = useContext(AnimeContext);
+    const { animeLoaded, animes, animeNames, animesFlattened, setAnimeLoaded, setAnimeNames, setAnimes, setAnimesFlattened, setUserAnimeList } = useContext(AnimeContext);
     const { animeAutocompleteSettings } = useContext(LocalSettingsContext);
     const axios = useAxios();
 
@@ -78,6 +79,14 @@ export const useAnimeBase = (): IAnimeBase => {
         .catch((e) => { console.log("error during anime list fetching: " + e)})
         .then(() => { setAnimeLoaded(true); console.log("loaded animes"); });
     }
+    const loadUserAnimeList = () => {
+        return axios.get('Account/myanimelist').then((response: AxiosResponse) => {
+            let data: UserAnimeListData = response.data;
+            setUserAnimeList(data)
+            console.log("fetched anime list of user " + response.data.animeListUserId)
+            return data;
+        })
+    }
 
-    return { getAnimeIdFromName, getAnimeNameFromId, loadAnimes, getAnimeFromId };
+    return { getAnimeIdFromName, getAnimeNameFromId, loadAnimes, getAnimeFromId, loadUserAnimeList };
 };

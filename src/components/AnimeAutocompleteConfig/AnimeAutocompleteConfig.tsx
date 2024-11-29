@@ -6,6 +6,7 @@ import { LanguagePicker } from '../LanguagePicker/LanguagePicker';
 import { LocalSettingsContext } from '@/context/local-settings-context';
 import { HoverHelper } from '../HoverHelper/HoverHelper';
 import { useTranslation } from 'react-i18next';
+import { useClickOutside, useHover } from '@mantine/hooks';
 
 export function AnimeAutocompleteConfig() {
     const [opened, setOpened] = useState(false);
@@ -14,6 +15,13 @@ export function AnimeAutocompleteConfig() {
     const [selectedAnimeAutocompleteLanguage, setSelectedAnimeAutocompleteLanguage] = useState(animeAutocompleteSettings.autocompleteLanguageCode)
     const [selectedTextHighlight, setSelectedTextHighlight] = useState(animeAutocompleteSettings.highlightText)
     const { t } = useTranslation('game');
+    const clickRef = useClickOutside(() => {
+        if (!hovered)
+        {
+          setOpened(false)
+        }
+      });
+      const { hovered, ref } = useHover();
 
     const handleAutocompleteBehaviourOptionChanged = (value: string) => {
         setSelectedAutocompleteBehaviour(value as AnimeAutocompleteOptionDisplay);
@@ -34,8 +42,8 @@ export function AnimeAutocompleteConfig() {
     }
 
     return (
-    <Popover trapFocus position="right-start" withArrow shadow="md" opened={opened}>
-        <Popover.Target>
+    <Popover trapFocus position="top" withArrow shadow="md" opened={opened}>
+        <Popover.Target ref={ref}>
             <ActionIcon
             size={42}
             variant="default"
@@ -45,7 +53,7 @@ export function AnimeAutocompleteConfig() {
             <CiSettings style={{ width: rem(22), height: rem(22) }} />
             </ActionIcon>
         </Popover.Target>
-        <Popover.Dropdown>
+        <Popover.Dropdown ref={clickRef}>
             <Stack justify='flex-start'>
                 <Radio.Group
                 value={selectedAutocompleteBehaviour}

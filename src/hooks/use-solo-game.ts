@@ -5,28 +5,24 @@ import SoloHubConnector from '../signalr-solohub'
 import { GameAnswer, GameCompletedEvent, GameConfiguration, GameQuestion, GameState, QuestionResult } from "../models/GameConfiguration";
 import { AnimeContext } from "@/context/anime-context";
 import { useAnimeBase } from "./use-anime-base";
-import { config } from "chai";
+import { GameConfigurationContext } from "@/context/game-configuration-context";
 
 export interface ISoloGame {
     connectToSoloLobby: () => Promise<void>;
     startSoloGame: () => Promise<void>;
     answerQuestion: (answer: GameAnswer) => void;
+    endSoloGame: () => Promise<boolean>;
 }
 
 export const useSoloGame = (): ISoloGame => {
     const { account } = useAuth();
-    const { events, startGame, connectToLobby, setQuestionAnswered, getGameName } = SoloHubConnector(account == null ? "" : account.token);
+    const { events, startGame, connectToLobby, setQuestionAnswered, getGameName, endGame } = SoloHubConnector(account == null ? "" : account.token);
+    const { gameConfiguration, setGameConfiguration } = useContext(GameConfigurationContext);
     const { gameState, setGameState,
       currentQuestion, setCurrentQuestion, currentAnswer, setCurrentAnswer, correctAnswers, setCorrectAnswers, 
-      gameConfiguration, setGameConfiguration, lastAnswerData, setLastAnswerData, gameRecap, setGameRecap, gameName, setGameName, 
-      setQuestionNumber, setQuestionTimeout, setDiversifyAnime, setAnimeAllowedYears, setAnimeAllowedRating } = useContext(SoloGameContext);
+      lastAnswerData, setLastAnswerData, gameRecap, setGameRecap, gameName, setGameName } = useContext(SoloGameContext);
     const { animeLoaded, animes } = useContext(AnimeContext);
     const { loadAnimes } = useAnimeBase();
-
-    
-    const handleMessageReceived = (message: string) => {
-        //
-    }
 
     const handleAskQuestion = (question: GameQuestion) => {
         setGameState(GameState.QuestionReceived)
@@ -62,12 +58,10 @@ export const useSoloGame = (): ISoloGame => {
     const handleGameCompleted = (event: GameCompletedEvent) => {
         console.log("game completed event triggered")
         setGameState(GameState.Finished)
-        //setCurrentQuestion(defaultQuestion);
-        //setCurrentAnswer(defaultAnswer);
         setCorrectAnswers(event.correct);
         setGameRecap(event.gameRecap);
     }
-    events(handleMessageReceived, handleAskQuestion, handleConfirmAnswerReceived, handleQuestionResultReceived, handleQuestionTransitionMessage, handleGameStarted, handleGameCompleted );
+    events(handleAskQuestion, handleConfirmAnswerReceived, handleQuestionResultReceived, handleQuestionTransitionMessage, handleGameStarted, handleGameCompleted );
 
     const loadAnime = async () => {
         if(!animeLoaded)
@@ -92,11 +86,15 @@ export const useSoloGame = (): ISoloGame => {
         });
     };
 
+    const endSoloGame = async () => {
+        return await endGame();
+    }
+
     const answerQuestion = (answer: GameAnswer) => {
         
         setQuestionAnswered(answer);
         setGameState(GameState.QuestionAnswered)
     }
 
-    return { connectToSoloLobby, startSoloGame, answerQuestion };
+    return { connectToSoloLobby, startSoloGame, answerQuestion, endSoloGame };
 };

@@ -1,5 +1,4 @@
 import { MultiplayerGamePlayroom } from "@/components/MultiplayerGamePlayroom/MultiplayerGamePlayroom";
-import { MultiplayerGameChat } from "@/components/MultiplayerGameChat/MultiplayerGameChat";
 import { MultiplayerGameContext } from "@/context/multiplayer-game-context";
 import { GameState } from "@/models/GameConfiguration";
 import { Grid, Group } from "@mantine/core";
@@ -8,6 +7,7 @@ import { MultiplayerGameSettings } from "../MultiplayerGameSettings/MultiplayerG
 import classes from "./MultiplayerGame.module.css"
 import { GameRecapComponent } from "../GameRecap/GameRecap";
 import { useMultiplayerGame } from "@/hooks/use-multiplayer-game";
+import { MultiplayerGameStandoffDeckGame } from "../MultiplayerGameStandoffDeckGame/MultiplayerGameStandoffDeckGame";
 
 export const MultiplayerGame: React.FC = (): ReactElement => {
 
@@ -18,16 +18,17 @@ export const MultiplayerGame: React.FC = (): ReactElement => {
     const isInSettingsScreen = (gameState: GameState) => {
         return gameState == GameState.Lobby || gameState == GameState.Starting;
     }
+    const isInDeckGame = (gameState: GameState) => {
+        return gameState == GameState.DeckGame;
+    } 
+    const isInAnimeSelection = (gameState: GameState) => {
+        return gameState == GameState.AnimeSelection;
+    }
     return (
-        <Grid justify="space-between" classNames={{ root: classes.fullHeight, inner: classes.fullHeight}}>
-            <Grid.Col span="auto">
+        <>
             { isInSettingsScreen(gameState) ? <MultiplayerGameSettings/>
+             : isInDeckGame(gameState) ? <MultiplayerGameStandoffDeckGame/>
              : gameState != GameState.Finished ? <MultiplayerGamePlayroom/> : <GameRecapComponent gameName={gameName} gameRecap={gameRecap} correctAnswers={correctAnswers} isMultiplayer={true} findAccountNameById={accountIdToName}/> }
-            </Grid.Col>
-            
-            <Grid.Col span={2} className={classes.chatWindow}>
-                <MultiplayerGameChat/>
-            </Grid.Col>
-        </Grid>
+        </>
     )
 }

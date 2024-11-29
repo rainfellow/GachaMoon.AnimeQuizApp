@@ -1,15 +1,13 @@
 .imageBox {
   display: 'flex';
-  width: calc(50% + 500px);
-  max-width: 1000px;
   margin: 0 0;
 }
 
-@media (min-width: 2000px) {
+/* @media (min-width: 2000px) {
   .imageBox {
     width: 1000px;
   }
-}
+} */
 
 .box {
   width: 100px;
@@ -62,4 +60,23 @@
 
 .musicBox {
   margin: 0 0 30px 0;
+}
+
+.endGameButtonContainer {
+  position: fixed;
+  bottom: 20px; /* Adjust this value to move the button up/down */
+  right: 20px; /* Adjust this value to move the button left/right */
+  z-index: 1000; /* Ensure the button appears above other content */
+}
+
+.endGameButton {
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.endGameButton:hover {
+  background-color: #ff0000;
 }

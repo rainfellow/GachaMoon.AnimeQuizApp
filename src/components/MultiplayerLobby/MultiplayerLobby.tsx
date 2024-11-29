@@ -6,9 +6,7 @@ import React from 'react'
 const MultiplayerLobby = () => {
 
   return (
-    <MultiplayerGameContextProvider>
         <MultiplayerLobbyView/>
-    </MultiplayerGameContextProvider>
   )
 }
 

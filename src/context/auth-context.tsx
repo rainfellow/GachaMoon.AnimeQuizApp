@@ -2,12 +2,16 @@ import React, { createContext, useCallback, useState } from "react";
 import type { ReactElement } from "react";
 import { type IAccount as IAccount } from "../hooks/use-auth";
 import { AccountInfo } from "../models/User";
+import { PlayerInfo } from "@/models/GameConfiguration";
 
 export interface IAuthContext {
     account: IAccount | null;
     setAccount: (user: IAccount | null) => void;
     accountInfo: AccountInfo | null;
     setAccountInfo: (info: AccountInfo | null) => void;
+    friends: PlayerInfo[] | null
+    setFriends: (friends: PlayerInfo[] | null) => void;
+    friendsCount: number
 }
 
 export const AuthContext = createContext<IAuthContext>({
@@ -15,6 +19,9 @@ export const AuthContext = createContext<IAuthContext>({
     setAccount: () => { console.log("setting user") },
     accountInfo: null,
     setAccountInfo: () => { console.log("setting user info") },
+    friends: null,
+    setFriends: () => { console.log("setting user info") },
+    friendsCount: 0,
 });
 
 interface AuthContextProviderProps {
@@ -26,6 +33,8 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
 }: AuthContextProviderProps): ReactElement => {
     const [account, setAccount] = useState<IAccount | null>(null);
     const [accountInfo, setAccountInfo] = useState<AccountInfo | null>(null);
+    const [friends, setFriends] = useState<PlayerInfo[] | null>(null);
+    const [friendsCount, setFriendsCount] = useState<number>(0);
 
     const contextValue = {
         account,
@@ -35,7 +44,16 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
         accountInfo,
         setAccountInfo: useCallback((info: AccountInfo | null) => {
             setAccountInfo(info);
-        }, [])
+        }, []),
+        friends,
+        setFriends: useCallback((friends: PlayerInfo[] | null) => {
+            setFriends(friends);
+            if (friends != null)
+            {
+                setFriendsCount(friends.length);
+            }
+        }, []),
+        friendsCount
     };
 
     return (

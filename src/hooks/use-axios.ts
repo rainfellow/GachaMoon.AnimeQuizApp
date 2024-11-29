@@ -22,7 +22,7 @@ export const useAxios = (): Axios => {
 
         axiosInstance.interceptors.request.use((config) => {
             document.body.classList.add('loading-indicator');
-            document.body.style.overflow = 'hidden';
+            //document.body.style.overflow = 'hidden';
             document.body.style.pointerEvents = 'none'
             _requestsCount++;
             return config;
@@ -34,7 +34,7 @@ export const useAxios = (): Axios => {
                 _loadingTimer = setTimeout(() => {
                     if (_requestsCount < 1) {
                         document.body.classList.remove('loading-indicator');
-                        document.body.style.overflow = 'auto';
+                        //document.body.style.overflow = 'auto';
                         document.body.style.pointerEvents = 'auto';
                     }
                 }, 100);

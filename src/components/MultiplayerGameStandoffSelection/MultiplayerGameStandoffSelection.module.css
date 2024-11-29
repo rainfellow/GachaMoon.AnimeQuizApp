@@ -1,0 +1,12 @@
+.answerBox {
+    max-height: rem(40px);
+    min-height: rem(40px);
+    flex-grow: 1;
+    border-radius: var(--mantine-radius-md);
+    border: rem(1px) solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-6));
+    max-width: rem(700);
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+
+}

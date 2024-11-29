@@ -1,5 +1,5 @@
 import { SoloGameContext } from '@/context/solo-game-context';
-import { Group, rem, Image, Text, Stack, AspectRatio, NumberFormatter, Divider, Grid, Rating, Tooltip, Card, Space, Button, Radio, SegmentedControl, Badge, UnstyledButton } from '@mantine/core';
+import { Group, rem, Image, Text, Stack, AspectRatio, NumberFormatter, Divider, Grid, Rating, Tooltip, Card, Space, Button, Radio, SegmentedControl, Badge, UnstyledButton, Flex } from '@mantine/core';
 import { Carousel } from '@mantine/carousel';
 import { useContext, useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
@@ -16,11 +16,12 @@ import { useNavigate } from 'react-router-dom';
 import { HoverHelper } from '../HoverHelper/HoverHelper';
 import { getAgeRatingTitle } from '@/utils/translation-utils';
 import { useAxios } from '@/hooks/use-axios';
-import { useDisclosure } from '@mantine/hooks';
+import { useDisclosure, useViewportSize } from '@mantine/hooks';
 import { ReportAnimeBugModal } from '../ReportAnimeBugModal/ReportAnimeBugModal';
 import placeholder from '../../static/music_note.svg'
 
 export function GameRecapComponent(props: {gameRecap: GameRecap, correctAnswers: number, gameName: string, isMultiplayer: boolean, findAccountNameById: (accountId: number) => string}) {
+  const { height, width } = useViewportSize();
   const [slideIndex, setSlideIndex] = useState(0);
   const { account } = useAuth()
   const axios = useAxios();
@@ -51,7 +52,18 @@ export function GameRecapComponent(props: {gameRecap: GameRecap, correctAnswers:
   const playabilityFeedbackComponentData = [
     {label: t('game:RatePlayabilityUnplayable'), value: "1"}, 
     {label: t('game:RatePlayabilityNormal'), value: "2"}, 
-    {label: t('game:RatePlayabilityGood'), value: "3"}];
+    {label: t('game:RatePlayabilityGood'), value: "3"}];    
+  
+    const calcImageWidth = (viewPortWidth: number) => {
+      return Math.min(1280, Math.max(640, viewPortWidth / 2.5));
+    }
+    const calcImageHeight = (viewPortWidth: number) => {
+      return Math.min(720, Math.max(360, viewPortWidth * 9 / (2.5 * 16)));
+  }
+
+    const calcPlaceholderSize = (viewPortWidth: number) => {
+        return Math.min(300, Math.max(140, viewPortWidth / 5));
+    }
 
   const [slides, setSlides] = useState([
     <Carousel.Slide key={0}>
@@ -150,8 +162,10 @@ export function GameRecapComponent(props: {gameRecap: GameRecap, correctAnswers:
       setPlayabilityFeedbackValue("0");
       setSlides(props.gameRecap.correctAnswers.map((x) => (
         <Carousel.Slide key={x.question}>
-            {x.question.includes('fancaps') ? <Image maw={1366} mah={768} fit="contain" src={x.question} /> : 
-        <Group justify='center' className={classes.musicBox}><Image w={300} h={300} src={placeholder}/></Group> }
+          <Flex justify='center' align='center' direction="column" wrap="wrap">
+            {x.question.includes('fancaps') ? <Image w={calcImageWidth(width)} h={calcImageHeight(width)} src={x.question} /> : 
+            <Image w={calcPlaceholderSize(width)} h={calcPlaceholderSize(width)} src={placeholder}/> } 
+          </Flex>
         </Carousel.Slide>
       )))
     }
@@ -186,7 +200,7 @@ export function GameRecapComponent(props: {gameRecap: GameRecap, correctAnswers:
           </div>
           }
           <div className={classes.carousel}>
-            <AspectRatio ratio={16 / 9} maw={1366} mah={768} style={{ flex: `0 0 ${768}` }} mx="auto">
+            <AspectRatio ratio={16 / 9} maw={1280} mah={720} style={{ flex: `0 0 ${720}` }} mx="auto">
               <Carousel 
                 withIndicators
                 onSlideChange={(value) => handleSlideChange(value)}

@@ -23,7 +23,7 @@ const links = [
 ];
 
 export function MainAppHeader() {
-  const { accountInfo } = useContext(AuthContext);
+  const { accountInfo, account } = useContext(AuthContext);
 
   const { logout } = useAuth();
   const [active, setActive] = useState("");
@@ -84,7 +84,7 @@ export function MainAppHeader() {
                     <Group gap={7}>
                     <Avatar src={ null } alt={accountInfo?.accountName} radius="xl" size={20} />
                     <Text fw={500} size="sm" lh={1} mr={3}>
-                        {accountInfo?.accountName}
+                        {accountInfo?.accountName}#{account?.accountId}
                     </Text>
                     <FaChevronDown style={{ width: rem(12), height: rem(12) }}/>
                     </Group>
