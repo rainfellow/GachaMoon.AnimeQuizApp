@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { AuthContext } from "@/context/auth-context";
 import { GameConfigurationContext } from "@/context/game-configuration-context";
 import { ChatsContext } from "@/context/chats-context";
+import { EventCard, LifeGameMoveResult, LifeGameState, MoveOption } from "@/models/LifeGame";
 
 export interface IMultiplayerGame {
     connect: () => Promise<void>;
@@ -26,17 +27,21 @@ export interface IMultiplayerGame {
     drawCard: () => Promise<StandoffDeckState>
     discardCard: (cardId: string) => Promise<StandoffDeckState>
     confirmSelection: (selectionResults: StandoffAnimeSelectionResult[]) => Promise<boolean>
+    sendMoveAttempt: (currentTile: number, moveOption: MoveOption) => void;
+    sendEventSelection: (event: EventCard) => void;
+    sendEventOptionSelection: (optionId: string) => void;
 }
 
 export const useMultiplayerGame = (): IMultiplayerGame => {
     const { account, accountInfo } = useContext(AuthContext);
     const { events, setGameSettings, setQuestionAnswered, setReadyForGame, getGameName, connectToLobby,
-        createNewGame, joinGame, leaveGame, sendMessage, getActiveGames, reconnectToGame, createChat, standoffDrawCard, standoffDiscardCard, confirmSelection: standoffConfirmSelection } = MultiplayerHubConnector(account == null ? "" : account.token);
+        createNewGame, joinGame, leaveGame, sendMessage, getActiveGames, reconnectToGame, createChat, standoffDrawCard, standoffDiscardCard, confirmSelection: standoffConfirmSelection, lifeGameAttemptMove } = MultiplayerHubConnector(account == null ? "" : account.token);
     const { isReady, setIsReady, gameState, setGameState,
       currentQuestion, setCurrentQuestion, currentAnswer, setCurrentAnswer, correctAnswers, setCorrectAnswers, 
       lastAnswerData, setLastAnswerData, gameRecap, setGameRecap, gameName, setGameName, 
       isLobbyLeader, setIsLobbyLeader,
-      activeGames, setActiveGames, playerAnswers, setPlayerAnswers, currentGamePlayers, setCurrentGamePlayers, setDeckState, setSelectionData, addPlayerToList } = useContext(MultiplayerGameContext);
+      activeGames, setActiveGames, playerAnswers, setPlayerAnswers, currentGamePlayers, setCurrentGamePlayers, setDeckState, setSelectionData, addPlayerToList,
+      lifeGameState, setLifeGameState, updateCurrentTile, updateLifeGamePlayer } = useContext(MultiplayerGameContext);
     const { gameConfiguration, setGameConfiguration } = useContext(GameConfigurationContext);
     const { chats, addChat, addMessage, removeChat, cachedPlayers, addCachedPlayers } = useContext(ChatsContext);
     const { animeLoaded, animes } = useContext(AnimeContext);
@@ -126,7 +131,24 @@ export const useMultiplayerGame = (): IMultiplayerGame => {
         setGameRecap(event.gameRecap);
     }
 
-    events(handleMessageReceived, handleAskQuestion, handleConfirmAnswerReceived, handleGameConfigurationUpdated, handlePlayerJoined, handlePlayerLeft, handlePlayerDisconnected, handlePlayerReconnected, handleQuestionResultReceived, handleQuestionTransitionMessage, handleGameStarted, handleGameCompleted, handleDeckGameStarted, handleSelectionStarted);
+    const handleLifeGameStarted = (lifeGameState: LifeGameState) => {
+        setLifeGameState(lifeGameState);
+    }
+
+    const handleLifeGameSecondPartStarted = (lifeGameState: LifeGameState) => {
+        setLifeGameState(lifeGameState);
+    }
+
+    const handleLifeGameThirdPartStarted = (lifeGameState: LifeGameState) => {
+        setLifeGameState(lifeGameState);
+    }
+
+    const handleLifeGameOtherPlayerMoved = (playerId: number, newPosition: number) => {
+        updateLifeGamePlayer(playerId, newPosition);
+    }
+
+    events(handleMessageReceived, handleAskQuestion, handleConfirmAnswerReceived, handleGameConfigurationUpdated, handlePlayerJoined, handlePlayerLeft, handlePlayerDisconnected, handlePlayerReconnected, handleQuestionResultReceived, handleQuestionTransitionMessage, handleGameStarted, handleGameCompleted, handleDeckGameStarted, handleSelectionStarted,
+            handleLifeGameStarted, handleLifeGameSecondPartStarted, handleLifeGameThirdPartStarted, handleLifeGameOtherPlayerMoved);
 
     const loadAnime = async () => {
         if(!animeLoaded)
@@ -312,12 +334,29 @@ export const useMultiplayerGame = (): IMultiplayerGame => {
     }
 
     const discardCard = (cardId: string) => {
-        return standoffDiscardCard(cardId).then((result: StandoffDeckState) => {setDeckState(result); console.log('drew a card'); return result; });
+        return standoffDiscardCard(cardId).then((result: StandoffDeckState) => {setDeckState(result); console.log('discarded a card'); return result; });
     }
 
     const confirmSelection = (selectionResults: StandoffAnimeSelectionResult[]) => {
         return standoffConfirmSelection(selectionResults);
     }
 
-    return { connect, createGame, joinExistingGame, answerQuestion, loadActiveGamesList, setReadyStatus, updateGameSettings, sendChatMessage, accountIdToName, leaveCurrentGame, startNewChat, drawCard, discardCard, confirmSelection };
+    const sendMoveAttempt = (currentTile: number, moveOption: MoveOption) => {
+        console.log('Sending move attempt:', currentTile, moveOption);
+        lifeGameAttemptMove(moveOption).then((x: LifeGameMoveResult) => {
+            if(x.isSuccessful)
+            {
+                updateCurrentTile(x.newPosition, x.tileEvents);
+            }
+        });
+    }
+    const sendEventSelection = (event: EventCard) => {
+        console.log('Sending event selection:', event);
+    }
+    const sendEventOptionSelection = (optionId: string) => {
+        console.log('Sending event option selection:', optionId);
+    }
+    return { connect, createGame, joinExistingGame, answerQuestion, loadActiveGamesList, setReadyStatus, updateGameSettings, sendChatMessage, accountIdToName, leaveCurrentGame, startNewChat, drawCard, discardCard, confirmSelection,
+            sendMoveAttempt, sendEventSelection, sendEventOptionSelection
+     };
 };

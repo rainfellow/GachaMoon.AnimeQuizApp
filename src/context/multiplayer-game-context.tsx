@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useState } from "react";
 import type { ReactElement } from "react";
 import { GameAnswer, GameQuestion, GameRecap, GameState, QuestionResult, ChatMessage, GameDetails, ServerGameState, PlayerInfo, PlayerAnswer, GetDefaultGameQuestion, GameType, StandoffDeckState, StandoffAnimeSelection } from "../models/GameConfiguration";
+import { EventCard, GetDefaultLifeGameState, LifeGameState } from "@/models/LifeGame";
 
 export interface IMultiplayerGameContext {
     isReady: boolean;
@@ -32,7 +33,10 @@ export interface IMultiplayerGameContext {
     selectionData: StandoffAnimeSelection[];
     setSelectionData: (selectionData: StandoffAnimeSelection[]) => void;
     addPlayerToList: (player: PlayerInfo) => void;
-    
+    lifeGameState: LifeGameState;
+    setLifeGameState: (state: LifeGameState) => void;
+    updateCurrentTile: (newPosition: number, events: EventCard[]) => void; 
+    updateLifeGamePlayer: (playerId: number, newPosition: number) => void; 
 }
 
 export const MultiplayerGameContext = createContext<IMultiplayerGameContext>({
@@ -69,6 +73,10 @@ export const MultiplayerGameContext = createContext<IMultiplayerGameContext>({
     selectionData: [],
     setSelectionData: () => { console.log("updating players list") },
     addPlayerToList: () => { console.log("updating players list") },
+    lifeGameState: GetDefaultLifeGameState(),
+    setLifeGameState: () => {},
+    updateCurrentTile: () => {},
+    updateLifeGamePlayer: () => {}
 });
 
 interface MultiplayerGameContextProviderProps {
@@ -94,6 +102,7 @@ export const MultiplayerGameContextProvider: React.FC<MultiplayerGameContextProv
     const [ deckState, setDeckState ] = useState<StandoffDeckState>({ deckValue: 0, playerDeck: [], turnsRemaining: 0, timeRemaining: 0, moveSuccessful: false });
     const [ lastAnswerData, setLastAnswerData ] = useState( { correctAnswerId: 0, detectedAnswerId: 0, isCorrect: false });
     const [ gameRecap, setGameRecap ] = useState({ correctAnswers: [{answer: 0, question: ""}], playerAnswersRecaps: {} });
+    const [ lifeGameState, setLifeGameState ] = useState(GetDefaultLifeGameState());
     const contextValue = {
         isReady,
         setIsReady: useCallback((isReady: boolean) => {
@@ -158,7 +167,29 @@ export const MultiplayerGameContextProvider: React.FC<MultiplayerGameContextProv
                 return players;
             });
         }, []),
-        
+        lifeGameState,
+        setLifeGameState: useCallback((lifeGameState: LifeGameState) => {
+            setLifeGameState((state) => 
+            {
+                state = lifeGameState;
+                return state;
+            });
+        }, []),
+        updateCurrentTile: useCallback((newPosition: number, events: EventCard[]) => {
+            setLifeGameState((state) => 
+            {
+                state.players[state.currentPlayer].position = newPosition;
+                state.currentTileEvents = events;
+                return state;
+            });
+        }, []),
+        updateLifeGamePlayer: useCallback((playerId: number, newPosition: number) => {
+            setLifeGameState((state) => 
+            {
+                state.players[playerId].position = newPosition;
+                return state;
+            });
+        }, []),
     };
 
     return (

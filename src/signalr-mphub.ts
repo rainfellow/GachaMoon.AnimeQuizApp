@@ -1,5 +1,6 @@
 import * as signalR from "@microsoft/signalr";
 import { GameAnswer, GameCompletedEvent, GameConfiguration, GameDetails, GameJoinResult, GameQuestion, GameRejoinResult, GameType, LobbyStatus, PlayerAnswer, PlayerInfo, PlayerLobbyStatus, QuestionResult, StandoffAnimeSelection, StandoffAnimeSelectionResult, StandoffDeckState } from "./models/GameConfiguration";
+import { EventCard, LifeGameMoveResult, LifeGameState, MoveOption } from "./models/LifeGame";
 const URL = "https://game.gachamoon.xyz/mplobby";
 class MultiplayerHubConnector {
     private connection: signalR.HubConnection;
@@ -26,7 +27,11 @@ class MultiplayerHubConnector {
         onGameStarted: (gameConfiguration: GameConfiguration) => void,
         onGameCompleted: (event: GameCompletedEvent) => void,
         onDeckGameStarted: (playerDeckState: StandoffDeckState) => void,
-        onSelectionStarted: (selectionData: StandoffAnimeSelection[]) => void
+        onSelectionStarted: (selectionData: StandoffAnimeSelection[]) => void,
+        onLifeGameStarted: (lifeGameState: LifeGameState) => void,
+        onLifeGameSecondPartStarted: (lifeGameState: LifeGameState) => void,
+        onLifeGameThirdPartStarted: (lifeGameState: LifeGameState) => void,
+        onLifeGameOtherPlayerMoved: (playerId: number, newPosition: number) => void,
     ) => void);
 
     static instance: MultiplayerHubConnector;
@@ -40,7 +45,8 @@ class MultiplayerHubConnector {
             .withAutomaticReconnect()
             .build();
         this.events = (onMessageReceived, onAskQuestion, onConfirmAnswerReceived, onGameConfigurationUpdated, onPlayerJoined, onPlayerLeft, onPlayerDisconnected, onPlayerReconnected,
-            onSendQuestionResult, onSendQuestionTransitionMessage, onGameStarted, onGameCompleted, onDeckGameStarted, onSelectionStarted) => {}
+            onSendQuestionResult, onSendQuestionTransitionMessage, onGameStarted, onGameCompleted, onDeckGameStarted, onSelectionStarted,
+            onLifeGameStarted, onLifeGameSecondPartStarted, onLifeGameThirdPartStarted, onLifeGameOtherPlayerMoved) => {}
         this.startConnection();
         
     }
@@ -194,6 +200,16 @@ class MultiplayerHubConnector {
         return this.isLobbyLeader;
     }
 
+    public lifeGameAttemptMove = async (moveOption: MoveOption) => {
+        return this.connection.invoke("LifeGameMove", moveOption).then((x: LifeGameMoveResult) => {
+            if (!x.isSuccessful)
+            {
+                console.log('error while confirming selected anime')
+            }
+            return x;
+        });
+    }
+
     public static getInstance(authToken: string): MultiplayerHubConnector {
         if (!MultiplayerHubConnector.instance)
             MultiplayerHubConnector.instance = new MultiplayerHubConnector(authToken);
@@ -212,7 +228,7 @@ class MultiplayerHubConnector {
         this.connection.start().then(
             () => {
                 this.events = (onMessageReceived, onAskQuestion, onConfirmAnswerReceived, onGameConfigurationUpdated, onPlayerJoined, onPlayerLeft, onPlayerDisconnected, onPlayerReconnected,
-                    onSendQuestionResult, onSendQuestionTransitionMessage, onGameStarted, onGameCompleted, onDeckGameStarted, onSelectionStarted) => {
+                    onSendQuestionResult, onSendQuestionTransitionMessage, onGameStarted, onGameCompleted, onDeckGameStarted, onSelectionStarted, onLifeGameStarted, onLifeGameSecondPartStarted, onLifeGameThirdPartStarted, onLifeGameOtherPlayerMoved) => {
                     this.connection.off("MessageReceived");
                     this.connection.off("AskQuestion");
                     this.connection.off("ConfirmAnswerReceived");
@@ -225,6 +241,10 @@ class MultiplayerHubConnector {
                     this.connection.off("GameCompleted");
                     this.connection.off("DeckGameStarted");
                     this.connection.off("SelectionStarted");
+                    this.connection.off("LifeGameStarted");
+                    this.connection.off("LifeGameSecondPartStarted");
+                    this.connection.off("LifeGameThirdPartStarted");
+                    this.connection.off("LifeGameOtherPlayerMoved");
                     this.connection.on("MessageReceived", (chatName: string, message: string, accountId: number) => {
                         onMessageReceived(chatName, message, accountId);
                     });
@@ -282,6 +302,19 @@ class MultiplayerHubConnector {
                     });
                     this.connection.on("SelectionStarted", (selectionData: StandoffAnimeSelection[]) => {
                         onSelectionStarted(selectionData);
+                    });
+                    
+                    this.connection.on("LifeGameStarted", (lifeGameState: LifeGameState) => {
+                        onLifeGameStarted(lifeGameState);
+                    });
+                    this.connection.on("LifeGameSecondPartStarted", (lifeGameState: LifeGameState) => {
+                        onLifeGameSecondPartStarted(lifeGameState);
+                    });
+                    this.connection.on("LifeGameThirdPartStarted", (lifeGameState: LifeGameState) => {
+                        onLifeGameThirdPartStarted(lifeGameState);
+                    });
+                    this.connection.on("LifeGameOtherPlayerMoved", (playerId: number, newPosition: number) => {
+                        onLifeGameOtherPlayerMoved(playerId, newPosition);
                     });
                 };
                 this.isConnected = true;
